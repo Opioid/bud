@@ -42,16 +42,16 @@ impl Generator {
     }
 
     fn advance_pcg32(&mut self) -> u32 {
-        let oldstate = self.state.state;
+        let old = self.state.state;
 
         // Advance internal state
-        self.state.state = oldstate.wrapping_mul(6364136223846793005) + (self.state.inc | 1);
+        self.state.state = old.wrapping_mul(6364136223846793005) + (self.state.inc | 1);
 
         // Calculate output function (XSH RR), uses old state for max ILP
-        let xorshifted = (((oldstate >> 18) ^ oldstate) >> 27) as u32;
+        let xor = (((old >> 18) ^ old) >> 27) as u32;
 
-        let rot = (oldstate >> 59) as u32;
+        let rot = (old >> 59) as u32;
 
-        (xorshifted >> rot) | (xorshifted << ((0xFFFFFFFF - rot) & 31))
+        (xor >> rot) | (xor << (0_u32.wrapping_sub(rot) & 31))
     }
 }
