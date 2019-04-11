@@ -1,0 +1,10 @@
+[package]
+name = "bud"
+version = "0.0.0"
+authors = ["Benjamin Savs"]
+
+[[bin]]
+name = "bud"
+path = "src/cli/main.rs"
+
+[dependencies]
