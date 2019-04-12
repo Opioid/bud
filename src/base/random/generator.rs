@@ -1,30 +1,24 @@
-pub struct State {
+pub struct Generator {
     state: u64,
     inc: u64,
-}
-
-pub struct Generator {
-    state: State,
 }
 
 impl Generator {
     pub fn new(state: u64, sequence: u64) -> Generator {
         let mut g = Generator {
-            state: State {
                 state: state,
                 inc: sequence,
-            },
         };
         g.start(state, sequence);
         g
     }
 
     pub fn start(&mut self, state: u64, sequence: u64) {
-        self.state.state = 0;
-        self.state.inc = (sequence << 1) | 1;
+        self.state = 0;
+        self.inc = (sequence << 1) | 1;
 
         self.random_uint();
-        self.state.state += state;
+        self.state += state;
         self.random_uint();
     }
 
@@ -42,16 +36,16 @@ impl Generator {
     }
 
     fn advance_pcg32(&mut self) -> u32 {
-        let old = self.state.state;
+        let old = self.state;
 
         // Advance internal state
-        self.state.state = old.wrapping_mul(6364136223846793005) + (self.state.inc | 1);
+        self.state = old.wrapping_mul(6364136223846793005) + (self.inc | 1);
 
         // Calculate output function (XSH RR), uses old state for max ILP
-        let xor = (((old >> 18) ^ old) >> 27) as u32;
+        let xrs = (((old >> 18) ^ old) >> 27) as u32;
 
         let rot = (old >> 59) as u32;
 
-        (xor >> rot) | (xor << (0_u32.wrapping_sub(rot) & 31))
+        (xrs >> rot) | (xrs << (0_u32.wrapping_sub(rot) & 31))
     }
 }
