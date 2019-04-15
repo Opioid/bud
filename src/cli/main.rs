@@ -3,7 +3,10 @@ extern crate bud;
 use std::fs::File;
 use std::io::BufWriter;
 
+use bud::base::math::vector2::int2;
+use bud::base::math::vector3::float3;
 use bud::base::random;
+use bud::core::image;
 use bud::core::image::encoding::rgbe;
 
 fn main() {
@@ -16,8 +19,20 @@ fn main() {
     let file = File::create("image.hdr").expect("Unable to create file");
     let mut stream = BufWriter::new(file);
 
-    let width = 512;
-    let height = 256;
+    let dim = int2::new(512, 256);
 
-    rgbe::Writer::write(&mut stream, width, height);
+    let mut image = image::Float3::new(dim);
+
+    let d = image.dimensions;
+
+    for y in 0..d.y {
+        for x in 0..d.x {
+            let r = x as f32 / (d.x - 1) as f32;
+            let g = y as f32 / (d.y - 1) as f32;
+
+            image.set(x, y, float3::new(r, g, 1.0))
+        }
+    }
+
+    rgbe::Writer::write(&mut stream, &image);
 }

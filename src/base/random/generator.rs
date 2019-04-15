@@ -6,7 +6,7 @@ pub struct Generator {
 impl Generator {
     pub fn new(state: u64, sequence: u64) -> Generator {
         let mut g = Generator {
-            state: state,
+            state,
             inc: sequence,
         };
         g.start(state, sequence);
