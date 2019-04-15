@@ -28,14 +28,15 @@ impl Writer {
         }
     }
 
+    // Not a complete implementation of frexp - only for positive numbers
     fn frexp(s: f32) -> (f32, i32) {
         if 0.0 == s {
             return (s, 0);
         } else {
-            let lg = s.abs().log2();
+            let lg = s.log2();
             let x = (lg - lg.floor() - 1.0).exp2();
-            let exp = lg.floor() + 1.0;
-            (s.signum() * x, exp as i32)
+            let exp = lg.floor() as i32 + 1;
+            (x, exp)
         }
     }
 
