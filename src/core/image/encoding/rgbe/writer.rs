@@ -20,10 +20,22 @@ impl Writer {
     }
 
     fn write_pixels(stream: &mut Write, image: &image::Float3) {
-        for i in 0..image.dimensions.x * image.dimensions.y {
+        let d = image.dimensions;
+        for i in 0..d.x * d.y {
             stream
                 .write(&Writer::float_to_rgbe(image.get_by_index(i)))
                 .unwrap();
+        }
+    }
+
+    fn frexp(s: f32) -> (f32, i32) {
+        if 0.0 == s {
+            return (s, 0);
+        } else {
+            let lg = s.abs().log2();
+            let x = (lg - lg.floor() - 1.0).exp2();
+            let exp = lg.floor() + 1.0;
+            (s.signum() * x, exp as i32)
         }
     }
 
@@ -41,17 +53,16 @@ impl Writer {
         if v < 1e-32 {
             return [0, 0, 0, 0];
         } else {
-               // let (f, e) = v.frexp();
+            let (f, e) = Writer::frexp(v);
 
-               // v = f * 256.0 / v;
+            v = f * 256.0 / v;
 
-            // return byte4(static_cast<uint8_t>(c[0] * v),
-            //              static_cast<uint8_t>(c[1] * v),
-            //              static_cast<uint8_t>(c[2] * v),
-            //              static_cast<uint8_t>(e + 128));
-
-           //   return [(c.x * v) as u8, (c.y * v) as u8, (c.z * v) as u8, (e + 128) as u8];
-            return [255, 255, 255, 0];
+            return [
+                (c.x * v) as u8,
+                (c.y * v) as u8,
+                (c.z * v) as u8,
+                (e + 128) as u8,
+            ];
         }
     }
 }
