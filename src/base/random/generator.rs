@@ -6,10 +6,12 @@ pub struct Generator {
 impl Generator {
     pub fn new(state: u64, sequence: u64) -> Generator {
         let mut g = Generator {
-            state,
-            inc: sequence,
+            state: 0,
+            inc: (sequence << 1) | 1,
         };
-        g.start(state, sequence);
+        g.random_uint();
+        g.state += state;
+        g.random_uint();
         g
     }
 
