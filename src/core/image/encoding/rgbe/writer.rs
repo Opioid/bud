@@ -2,14 +2,14 @@ use std::io::Write;
 
 use crate::base::math::vector2::int2;
 use crate::base::math::vector3::float3;
-use crate::core::image;
+use crate::core::image::Float3;
 
 pub struct Writer {}
 
 // http://www.graphics.cornell.edu/~bjw/rgbe
 
 impl Writer {
-    pub fn write(stream: &mut Write, image: &image::Float3) {
+    pub fn write(stream: &mut Write, image: &Float3) {
         Writer::write_header(stream, image.dimensions);
 
         Writer::write_pixels_rle(stream, image);
@@ -21,7 +21,7 @@ impl Writer {
         write!(stream, "-Y {} +X {}\n", dimensions.y, dimensions.x).unwrap();
     }
 
-    fn write_pixels(stream: &mut Write, image: &image::Float3) {
+    fn write_pixels(stream: &mut Write, image: &Float3) {
         let d = image.dimensions;
         for i in 0..d.x * d.y {
             stream
@@ -30,7 +30,7 @@ impl Writer {
         }
     }
 
-    fn write_pixels_rle(stream: &mut Write, image: &image::Float3) {
+    fn write_pixels_rle(stream: &mut Write, image: &Float3) {
         let scanline_width = image.dimensions.x;
         let num_scanlines = image.dimensions.y;
 

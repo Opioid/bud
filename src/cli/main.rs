@@ -1,6 +1,7 @@
 extern crate bud;
 
 use std::fs::File;
+use std::io::BufReader;
 use std::io::BufWriter;
 
 use bud::base::math::vector2::int2;
@@ -35,4 +36,14 @@ fn main() {
     }
 
     rgbe::Writer::write(&mut stream, &image);
+
+    let file = File::open("image.hdr").expect("Unable to find file");
+    let mut stream = BufReader::new(file);
+
+    let image = rgbe::Reader::read(&mut stream).unwrap();
+
+    println!(
+        "Image dimensions {} {}",
+        image.dimensions.x, image.dimensions.y
+    );
 }
