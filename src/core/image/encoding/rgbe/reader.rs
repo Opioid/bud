@@ -2,23 +2,23 @@ use std::io;
 use std::io::{BufRead, Error, ErrorKind};
 
 use crate::base::math::vector2::int2;
-// use crate::base::math::vector3::float3;
+use crate::base::math::vector3::float3;
 use crate::core::image::Float3;
 
 pub struct Reader {}
 
 struct Header {
-    width: i32,
-    height: i32,
+    width: u32,
+    height: u32,
 }
 
 impl Reader {
     pub fn read(stream: &mut BufRead) -> io::Result<Float3> {
         let header = Reader::read_header(stream)?;
 
-        let mut image = Float3::new(int2::new(header.width, header.height));
+        let mut image = Float3::new(int2::new(header.width as i32, header.height as i32));
 
-        Reader::read_pixels_rle(&mut image)?;
+        Reader::read_pixels_rle(stream, header.width, header.height, &mut image)?;
 
         Ok(image)
     }
@@ -52,17 +52,14 @@ impl Reader {
         line.clear();
         stream.read_line(&mut line)?;
 
-        if let Some(dimensions) = Reader::parse_size(&line) {
-            return Ok(Header {
-                width: dimensions.x,
-                height: dimensions.y,
-            });
+        if let Some((width, height)) = Reader::parse_size(&line) {
+            return Ok(Header { width, height });
         }
 
         Err(Error::new(ErrorKind::Other, "Missing image size specifier"))
     }
 
-    fn parse_size(line: &str) -> Option<int2> {
+    fn parse_size(line: &str) -> Option<(u32, u32)> {
         let mut tokens = line.split(' ');
 
         if "-Y" != tokens.next()? {
@@ -83,10 +80,59 @@ impl Reader {
             return None;
         }
 
-        Some(int2::new(width.unwrap() as i32, height.unwrap() as i32))
+        Some((width.unwrap(), height.unwrap()))
     }
 
-    fn read_pixels_rle(_image: &mut Float3) -> io::Result<()> {
+    fn read_pixels_rle(stream: &mut BufRead, scanline_width : u32, num_scanlines : u32, image: &mut Float3) -> io::Result<()> {
+        if scanline_width < 8 || scanline_width > 0x7FFF {
+            return Reader::read_pixels(stream, scanline_width * num_scanlines, image, 0);
+        }
+
+        let mut rgbe = [0u8, 0u8, 0u8, 0u8];
+
+        for _ in 0..num_scanlines {
+            stream.read(&mut rgbe)?;
+
+            if rgbe[0] != 2 || rgbe[1] != 2 || (rgbe[2] & 0x80) != 0 {
+                // This file is not run length encoded
+                let color = Reader::rgbe_to_float3(rgbe);
+
+                image.set_by_index(0, color);
+
+                Reader::read_pixels(stream, scanline_width * num_scanlines - 1, image, 1);
+                return Ok(())
+            }
+        }
+
         Ok(())
+    }
+
+    fn read_pixels(stream: &mut BufRead, num_pixels: u32, image: &mut Float3, offset: u32) -> io::Result<()> {
+        let mut rgbe = [0u8, 0u8, 0u8, 0u8];
+
+        let mut o = offset as i32;
+
+        for _ in 0..num_pixels {
+            stream.read(&mut rgbe)?;
+
+            let color = Reader::rgbe_to_float3(rgbe);
+
+            image.set_by_index(o, color);
+
+            o += 1;
+        }
+
+        Ok(())
+    }
+
+    fn rgbe_to_float3(rgbe: [u8; 4]) -> float3 {
+        if rgbe[3] > 0 {
+            // nonzero pixel
+            let f = (((rgbe[3]) as i32 - (128 + 8)) as f32).exp2();
+
+            return float3::new(rgbe[0] as f32 * f, rgbe[1] as f32 * f, rgbe[2] as f32 * f);
+        }
+
+        float3::from_scalar(0.0)
     }
 }
