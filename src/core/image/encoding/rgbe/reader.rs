@@ -63,26 +63,22 @@ impl Reader {
     }
 
     fn parse_size(line: &str) -> Option<int2> {
-        let to = line.find(' ')?;
-        if "-Y" != &line[..to] {
+        let mut tokens = line.split(' ');
+
+        if "-Y" != tokens.next()? {
             return None;
         }
 
-        let sub = &line[to + 1..];
-        let to = sub.find(' ')?;
-        let height = (&sub[..to]).parse::<u32>();
+        let height = tokens.next()?.parse::<u32>();
         if height.is_err() {
             return None;
         }
 
-        let sub = &sub[to + 1..];
-        let to = sub.find(' ')?;
-        if "+X" != &sub[..to] {
+        if "+X" != tokens.next()? {
             return None;
         }
 
-        let sub = &sub[to + 1..].trim();
-        let width = sub.parse::<u32>();
+        let width = tokens.next()?.trim().parse::<u32>();
         if width.is_err() {
             return None;
         }
