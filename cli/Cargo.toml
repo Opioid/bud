@@ -1,0 +1,11 @@
+[package]
+name = "bud"
+version = "0.0.0"
+authors = ["Benjamin Savs"]
+
+[[bin]]
+name = "bud"
+
+[dependencies]
+base = { path = "../base" }
+core = { path = "../core" }

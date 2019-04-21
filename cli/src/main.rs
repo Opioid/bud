@@ -1,14 +1,15 @@
-extern crate bud;
+extern crate base;
+extern crate core;
 
 use std::fs::File;
 use std::io::BufReader;
 use std::io::BufWriter;
 
-use bud::base::math::vector2::int2;
-use bud::base::math::vector3::float3;
-use bud::base::random;
-use bud::core::image;
-use bud::core::image::encoding::rgbe;
+use base::math::vector2::int2;
+use base::math::vector3::float3;
+use base::random;
+use core::image;
+use core::image::encoding::rgbe;
 
 fn main() {
     let mut rng = random::Generator::new(0, 0);

@@ -2,7 +2,7 @@ use std::io::Write;
 
 use crate::base::math::vector2::int2;
 use crate::base::math::vector3::float3;
-use crate::core::image::Float3;
+use crate::image::Float3;
 
 pub struct Writer {}
 

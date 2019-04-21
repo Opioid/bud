@@ -1,0 +1,10 @@
+ [package]
+name = "core"
+version = "0.0.0"
+authors = ["Benjamin Savs"]
+
+[lib]
+name = "core"
+
+[dependencies]
+base = { path = "../base" }
