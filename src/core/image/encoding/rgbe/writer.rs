@@ -24,9 +24,8 @@ impl Writer {
     fn write_pixels(stream: &mut Write, image: &Float3) {
         let d = image.dimensions;
         for i in 0..d.x * d.y {
-            stream
-                .write(&Writer::float_to_rgbe(image.get_by_index(i)))
-                .unwrap();
+            let rgbe = Writer::float_to_rgbe(image.get_by_index(i));
+            stream.write(&rgbe).unwrap();
         }
     }
 

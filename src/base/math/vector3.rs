@@ -1,4 +1,4 @@
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[allow(non_camel_case_types)]
 pub struct float3 {
     pub x: f32,
