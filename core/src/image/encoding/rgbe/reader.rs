@@ -83,7 +83,12 @@ impl Reader {
         Some((width.unwrap(), height.unwrap()))
     }
 
-    fn read_pixels_rle(stream: &mut BufRead, scanline_width : u32, num_scanlines : u32, image: &mut Float3) -> io::Result<()> {
+    fn read_pixels_rle(
+        stream: &mut BufRead,
+        scanline_width: u32,
+        num_scanlines: u32,
+        image: &mut Float3,
+    ) -> io::Result<()> {
         if scanline_width < 8 || scanline_width > 0x7FFF {
             return Reader::read_pixels(stream, scanline_width * num_scanlines, image, 0);
         }
@@ -92,7 +97,7 @@ impl Reader {
         let mut rgbe = [0u8, 0u8, 0u8, 0u8];
         let mut buf = [0u8, 0u8];
 
-        let mut scanline_buffer = vec!(0u8; 4 * scanline_width as usize);
+        let mut scanline_buffer = vec![0u8; 4 * scanline_width as usize];
 
         for _ in 0..num_scanlines {
             stream.read_exact(&mut rgbe)?;
@@ -166,7 +171,12 @@ impl Reader {
         Ok(())
     }
 
-    fn read_pixels(stream: &mut BufRead, num_pixels: u32, image: &mut Float3, offset: u32) -> io::Result<()> {
+    fn read_pixels(
+        stream: &mut BufRead,
+        num_pixels: u32,
+        image: &mut Float3,
+        offset: u32,
+    ) -> io::Result<()> {
         let mut rgbe = [0u8, 0u8, 0u8, 0u8];
 
         let mut o = offset as i32;
@@ -174,7 +184,7 @@ impl Reader {
         for _ in 0..num_pixels {
             stream.read_exact(&mut rgbe)?;
 
-            let color =  Reader::rgbe_to_float(rgbe);
+            let color = Reader::rgbe_to_float(rgbe);
 
             image.set_by_index(o, color);
             o += 1;

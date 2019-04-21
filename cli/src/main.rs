@@ -37,7 +37,6 @@ fn main() {
             }
         }
 
-
         rgbe::Writer::write(&mut stream, &image);
     }
 
