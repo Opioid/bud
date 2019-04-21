@@ -1,10 +1,14 @@
 extern crate base;
 extern crate core;
 
+mod options;
+
+use std::env;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::BufWriter;
 
+use crate::options::Options;
 use base::math::vector2::int2;
 use base::math::vector3::float3;
 use base::random;
@@ -12,6 +16,12 @@ use core::image;
 use core::image::encoding::rgbe;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    let options = Options::new(&args);
+
+    println!("{}, {}", options.take, options.threads);
+
     let mut rng = random::Generator::new(0, 0);
 
     for x in 0..10 {
