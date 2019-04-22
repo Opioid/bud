@@ -14,6 +14,7 @@ use base::math::vector3::float3;
 use base::random;
 use core::image;
 use core::image::encoding::rgbe;
+use core::take;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -21,6 +22,17 @@ fn main() {
     let options = Options::new(&args);
 
     println!("{}, {}", options.take, options.threads);
+
+    let file = File::open(options.take).expect("Unable to find file");
+    let mut stream = BufReader::new(file);
+
+    let take = take::Loader::load(&mut stream);
+
+    if take.is_err() {}
+
+    let take = take.unwrap();
+
+    println!("{}", take.scene_filename);
 
     let mut rng = random::Generator::new(0, 0);
 

@@ -58,11 +58,11 @@ impl Options {
     fn handle(&mut self, command: &str, parameter: &str) -> bool {
         if "help".to_string() == command || "h".to_string() == command {
             Options::help();
-        } else if "input".to_string() == command || "i" == command {
+        } else if "input" == command || "i" == command {
             self.take = parameter.to_string();
-        } else if "mount".to_string() == command || "m" == command {
+        } else if "mount" == command || "m" == command {
             self.mounts.push(parameter.to_string());
-        } else if "threads".to_string() == command || "t" == command {
+        } else if "threads" == command || "t" == command {
             if let Ok(t) = parameter.parse::<i32>() {
                 self.threads = t;
             }
