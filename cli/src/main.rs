@@ -12,6 +12,7 @@ use crate::options::Options;
 use base::math::vector2::int2;
 use base::math::vector3::float3;
 use base::random;
+use core::file::System as FileSystem;
 use core::image;
 use core::image::encoding::rgbe;
 use core::take;
@@ -21,12 +22,23 @@ fn main() {
 
     let options = Options::new(&args);
 
-    println!("{}, {}", options.take, options.threads);
+    let mut file_system = FileSystem::new();
 
-    let file = File::open(options.take).expect("Unable to find file");
-    let mut stream = BufReader::new(file);
+    if options.mounts.is_empty() {
+        file_system.push_mount("../data/");
+    }
 
-    let take = take::Loader::load(&mut stream);
+    // let file = File::open(options.take).expect("Unable to find file");
+    // let mut stream = BufReader::new(file);
+
+    let stream = file_system.read_stream(&options.take);
+
+    if stream.is_err() {
+        println!("got here");
+        std::process::exit(1);
+    }
+
+    let take = take::Loader::load(&mut stream.unwrap());
 
     if take.is_err() {}
 

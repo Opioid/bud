@@ -1,6 +1,5 @@
 use serde_json::Value;
-use std::io;
-use std::io::{BufRead, Error, ErrorKind};
+use std::io::{self, BufRead, Error, ErrorKind};
 
 use take::Take;
 
