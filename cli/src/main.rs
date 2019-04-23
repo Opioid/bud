@@ -11,10 +11,8 @@ use base::math::vector2::int2;
 use base::math::vector3::float3;
 use base::random;
 use core::error::Error;
-use core::file::System as FileSystem;
 use core::image;
 use core::image::encoding::rgbe;
-use core::resource;
 use core::scene;
 use core::take;
 use options::Options;
@@ -52,8 +50,6 @@ fn main() {
     }
 
     let take = take.unwrap();
-
-    println!("{}", take.scene_filename);
 
     let scene = scene_loader.load(&take.scene_filename);
 

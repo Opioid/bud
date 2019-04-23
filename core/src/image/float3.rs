@@ -1,5 +1,5 @@
-use crate::base::math::vector2::int2;
-use crate::base::math::vector3::float3;
+use base::math::float3;
+use base::math::int2;
 
 pub struct Float3 {
     pub dimensions: int2,
