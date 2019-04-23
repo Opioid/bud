@@ -26,3 +26,16 @@ impl From<std::io::Error> for Error {
         }
     }
 }
+
+impl From<serde_json::Error> for Error {
+    fn from(err: serde_json::Error) -> Error {
+        Error {
+            message: format!(
+                "{:?} (line {}, column {})",
+                err.classify(),
+                err.line(),
+                err.column()
+            ),
+        }
+    }
+}

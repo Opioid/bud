@@ -38,7 +38,7 @@ impl System {
         }
 
         Err(Error::from_string(
-            "Stream \"".to_string() + name + "\" could not be opened",
+            "Stream \"".to_string() + name + "\" could not be opened.",
         ))
     }
 

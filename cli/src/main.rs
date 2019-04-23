@@ -10,9 +10,12 @@ use std::io::BufWriter;
 use base::math::vector2::int2;
 use base::math::vector3::float3;
 use base::random;
+use core::error::Error;
 use core::file::System as FileSystem;
 use core::image;
 use core::image::encoding::rgbe;
+use core::resource;
+use core::scene;
 use core::take;
 use options::Options;
 
@@ -21,26 +24,47 @@ fn main() {
 
     let options = Options::new(&args);
 
-    let mut file_system = FileSystem::new();
+    let mut scene_loader = scene::Loader::new();
 
-    if options.mounts.is_empty() {
-        file_system.push_mount("../data/");
+    {
+        let file_system = scene_loader.resource_manager().file_system(); // FileSystem::new();
+
+        if options.mounts.is_empty() {
+            file_system.push_mount("../data/");
+        }
     }
 
-    let stream = file_system.read_stream(&options.take);
+    let stream = scene_loader
+        .resource_manager()
+        .file_system()
+        .read_stream(&options.take);
 
     if let Err(err) = stream {
-        println!("This is the problem: {}", err.message());
+        println!("Loading take \"{}\": {}", options.take, err.message());
         std::process::exit(1);
     }
 
     let take = take::Loader::load(&mut stream.unwrap());
 
-    if take.is_err() {}
+    if let Err(err) = take {
+        println!("Loading take \"{}\": {}", options.take, err.message());
+        std::process::exit(1);
+    }
 
     let take = take.unwrap();
 
     println!("{}", take.scene_filename);
+
+    let scene = scene_loader.load(&take.scene_filename);
+
+    if let Err(err) = scene {
+        println!(
+            "Loading take \"{}\": {}",
+            take.scene_filename,
+            err.message()
+        );
+        std::process::exit(1);
+    }
 
     let mut rng = random::Generator::new(0, 0);
 
@@ -70,10 +94,9 @@ fn main() {
         rgbe::Writer::write(&mut stream, &image);
     }
 
-    //   let file = File::open("image.hdr").expect("Unable to find file");
-    //   let mut stream = BufReader::new(file);
-
-    let mut stream = file_system
+    let mut stream = scene_loader
+        .resource_manager()
+        .file_system()
         .read_stream("image.hdr")
         .expect("Unable to find file");
 
