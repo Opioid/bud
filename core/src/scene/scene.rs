@@ -12,6 +12,6 @@ impl Scene {
     pub fn create_prop(&mut self) -> &mut Prop {
         self.props.push(Box::new(Prop::new()));
 
-        &mut *self.props.last_mut().unwrap()
+        self.props.last_mut().unwrap()
     }
 }
