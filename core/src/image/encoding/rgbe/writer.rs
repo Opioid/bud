@@ -1,8 +1,8 @@
 use std::io::Write;
 
-use crate::base::math::vector2::int2;
-use crate::base::math::vector3::float3;
-use crate::image::Float3;
+use base::math::vector2::int2;
+use base::math::vector3::float3;
+use image::Float3;
 
 pub struct Writer {}
 

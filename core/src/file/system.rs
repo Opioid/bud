@@ -1,5 +1,7 @@
 use std::fs::File;
-use std::io::{self, BufRead, BufReader, Error, ErrorKind};
+use std::io::{BufRead, BufReader};
+
+use error::Error;
 
 pub struct System {
     mount_folders: Vec<String>,
@@ -7,16 +9,18 @@ pub struct System {
 
 impl System {
     pub fn new() -> System {
-        System{mount_folders: Vec::new()}
+        System {
+            mount_folders: Vec::new(),
+        }
     }
 
-    pub fn read_stream(&self, name: &str) -> io::Result<impl BufRead> {
+    pub fn read_stream(&self, name: &str) -> Result<impl BufRead, Error> {
         let stream = self.open_read_stream(name)?;
 
         Ok(stream)
     }
 
-    fn open_read_stream(&self, name: &str) -> io::Result<impl BufRead> {
+    fn open_read_stream(&self, name: &str) -> Result<impl BufRead, Error> {
         for f in self.mount_folders.iter() {
             if f.is_empty() {
                 continue;
@@ -32,10 +36,12 @@ impl System {
         if let Ok(file) = File::open(name) {
             return Ok(BufReader::new(file));
         }
-        
-        Err(Error::new(ErrorKind::Other, "Nothing found!!"))
+
+        Err(Error::from_string(
+            "Stream \"".to_string() + name + "\" could not be opened",
+        ))
     }
-    
+
     pub fn push_mount(&mut self, folder: &str) {
         // We also have to push empty folders, otherwise popping gets complicated
 

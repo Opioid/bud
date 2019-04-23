@@ -5,10 +5,8 @@ mod options;
 
 use std::env;
 use std::fs::File;
-use std::io::BufReader;
 use std::io::BufWriter;
 
-use crate::options::Options;
 use base::math::vector2::int2;
 use base::math::vector3::float3;
 use base::random;
@@ -16,6 +14,7 @@ use core::file::System as FileSystem;
 use core::image;
 use core::image::encoding::rgbe;
 use core::take;
+use options::Options;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -28,13 +27,10 @@ fn main() {
         file_system.push_mount("../data/");
     }
 
-    // let file = File::open(options.take).expect("Unable to find file");
-    // let mut stream = BufReader::new(file);
-
     let stream = file_system.read_stream(&options.take);
 
-    if stream.is_err() {
-        println!("got here");
+    if let Err(err) = stream {
+        println!("This is the problem: {}", err.message());
         std::process::exit(1);
     }
 
@@ -74,8 +70,12 @@ fn main() {
         rgbe::Writer::write(&mut stream, &image);
     }
 
-    let file = File::open("image.hdr").expect("Unable to find file");
-    let mut stream = BufReader::new(file);
+    //   let file = File::open("image.hdr").expect("Unable to find file");
+    //   let mut stream = BufReader::new(file);
+
+    let mut stream = file_system
+        .read_stream("image.hdr")
+        .expect("Unable to find file");
 
     let image = rgbe::Reader::read(&mut stream).unwrap();
 

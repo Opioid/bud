@@ -1,9 +1,10 @@
-use std::io;
-use std::io::{BufRead, Error, ErrorKind};
+use std::io::BufRead;
 
-use crate::base::math::vector2::int2;
-use crate::base::math::vector3::float3;
-use crate::image::Float3;
+use base::math::vector2::int2;
+use base::math::vector3::float3;
+use image::Float3;
+
+use error::Error;
 
 pub struct Reader {}
 
@@ -13,7 +14,7 @@ struct Header {
 }
 
 impl Reader {
-    pub fn read(stream: &mut BufRead) -> io::Result<Float3> {
+    pub fn read(stream: &mut BufRead) -> Result<Float3, Error> {
         let header = Reader::read_header(stream)?;
 
         let mut image = Float3::new(int2::new(header.width as i32, header.height as i32));
@@ -23,13 +24,13 @@ impl Reader {
         Ok(image)
     }
 
-    fn read_header(stream: &mut BufRead) -> io::Result<Header> {
+    fn read_header(stream: &mut BufRead) -> Result<Header, Error> {
         let mut line = String::new();
 
         stream.read_line(&mut line)?;
 
         if line.len() < 2 || &line.as_bytes()[..2] != "#?".as_bytes() {
-            return Err(Error::new(ErrorKind::Other, "Bad initial token"));
+            return Err(Error::new("Bad initial token"));
         }
 
         let mut format_specifier = false;
@@ -46,7 +47,7 @@ impl Reader {
         }
 
         if !format_specifier {
-            return Err(Error::new(ErrorKind::Other, "No format specifier found"));
+            return Err(Error::new("No format specifier found"));
         }
 
         line.clear();
@@ -56,7 +57,7 @@ impl Reader {
             return Ok(Header { width, height });
         }
 
-        Err(Error::new(ErrorKind::Other, "Missing image size specifier"))
+        Err(Error::new("Missing image size specifier"))
     }
 
     fn parse_size(line: &str) -> Option<(u32, u32)> {
@@ -88,7 +89,7 @@ impl Reader {
         scanline_width: u32,
         num_scanlines: u32,
         image: &mut Float3,
-    ) -> io::Result<()> {
+    ) -> Result<(), Error> {
         if scanline_width < 8 || scanline_width > 0x7FFF {
             return Reader::read_pixels(stream, scanline_width * num_scanlines, image, 0);
         }
@@ -112,7 +113,7 @@ impl Reader {
             }
 
             if (rgbe[2] as u32) << 8 | (rgbe[3] as u32) != scanline_width {
-                return Err(Error::new(ErrorKind::Other, "Wrong scanline width"));
+                return Err(Error::new("Wrong scanline width"));
             }
 
             // read each of the four channels for the scanline into the buffer
@@ -128,7 +129,7 @@ impl Reader {
                         let count = buf[0] as usize - 128;
 
                         if count == 0 || count > end - index {
-                            return Err(Error::new(ErrorKind::Other, "Bad scanline data"));
+                            return Err(Error::new("Bad scanline data"));
                         }
 
                         for _ in 0..count {
@@ -140,7 +141,7 @@ impl Reader {
                         let mut count = buf[0] as usize;
 
                         if count == 0 || count > end - index {
-                            return Err(Error::new(ErrorKind::Other, "Bad scanline data"));
+                            return Err(Error::new("Bad scanline data"));
                         }
 
                         scanline_buffer[index] = buf[1];
@@ -176,7 +177,7 @@ impl Reader {
         num_pixels: u32,
         image: &mut Float3,
         offset: u32,
-    ) -> io::Result<()> {
+    ) -> Result<(), Error> {
         let mut rgbe = [0u8, 0u8, 0u8, 0u8];
 
         let mut o = offset as i32;
