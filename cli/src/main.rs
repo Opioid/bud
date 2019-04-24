@@ -13,6 +13,7 @@ use base::random;
 use core::error::Error;
 use core::image;
 use core::image::encoding::rgbe;
+use core::scene::prop::Intersection;
 use core::scene::{self, Ray, Scene};
 use core::take;
 use options::Options;
@@ -65,7 +66,9 @@ fn main() {
 
         let mut ray = Ray::new();
 
-        scene.intersect(&mut ray);
+        let mut intersection = Intersection::new();
+
+        scene.intersect(&mut ray, &mut intersection);
     }
 
     let mut rng = random::Generator::new(0, 0);

@@ -28,7 +28,11 @@ impl Loader {
         &mut self.resource_manager
     }
 
-    pub fn load<'a, 'b>(&'a mut self, filename: &str, scene: &'b mut Scene<'a>) -> Result<(), Error> {
+    pub fn load<'a, 'b>(
+        &'a mut self,
+        filename: &str,
+        scene: &'b mut Scene<'a>,
+    ) -> Result<(), Error> {
         let stream = self.resource_manager.file_system().read_stream(filename)?;
 
         let root: Value = serde_json::from_reader(stream)?;

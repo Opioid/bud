@@ -1,4 +1,4 @@
-use super::prop::Prop;
+use super::prop::{Intersection, Prop};
 use super::shape::Shape;
 use super::Ray;
 
@@ -17,10 +17,12 @@ impl<'a> Scene<'a> {
         self.props.last_mut().unwrap()
     }
 
-    pub fn intersect(&self, ray: &mut Ray) -> bool {
+    pub fn intersect(&self, ray: &mut Ray, intersection: &mut Intersection<'a>) -> bool {
         for p in self.props.iter() {
-            p.intersect(ray);
+            p.intersect(ray, &mut intersection.geo);
         }
+
+        intersection.prop = Some(&self.props[0]);
 
         true
     }

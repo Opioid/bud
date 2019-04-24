@@ -1,5 +1,5 @@
 use scene::entity::Entity;
-use scene::shape::Shape;
+use scene::shape::{Intersection, Shape};
 use scene::Ray;
 
 pub struct Prop<'a> {
@@ -15,7 +15,7 @@ impl<'a> Prop<'a> {
         }
     }
 
-    pub fn intersect(&self, ray: &mut Ray) -> bool {
-        return self.shape.intersect(ray);
+    pub fn intersect(&self, ray: &mut Ray, intersection: &mut Intersection) -> bool {
+        return self.shape.intersect(ray, intersection);
     }
 }
