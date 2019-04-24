@@ -7,6 +7,14 @@ pub struct float3 {
 }
 
 impl float3 {
+    pub fn identity() -> float3 {
+        float3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
+    }
+
     pub fn from_scalar(s: f32) -> float3 {
         float3 { x: s, y: s, z: s }
     }

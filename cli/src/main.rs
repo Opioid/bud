@@ -13,7 +13,7 @@ use base::random;
 use core::error::Error;
 use core::image;
 use core::image::encoding::rgbe;
-use core::scene;
+use core::scene::{self, Ray, Scene};
 use core::take;
 use options::Options;
 
@@ -51,15 +51,21 @@ fn main() {
 
     let take = take.unwrap();
 
-    let scene = scene_loader.load(&take.scene_filename);
+    {
+        let mut scene = Scene::new();
 
-    if let Err(err) = scene {
-        println!(
-            "Loading take \"{}\": {}",
-            take.scene_filename,
-            err.message()
-        );
-        std::process::exit(1);
+        if let Err(err) = scene_loader.load(&take.scene_filename, &mut scene) {
+            println!(
+                "Loading take \"{}\": {}",
+                take.scene_filename,
+                err.message()
+            );
+            std::process::exit(1);
+        }
+
+        let mut ray = Ray::new();
+
+        scene.intersect(&mut ray);
     }
 
     let mut rng = random::Generator::new(0, 0);

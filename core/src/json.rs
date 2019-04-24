@@ -20,7 +20,6 @@ pub fn read_transformation(value: &serde_json::Value, transformation: &mut Trans
                 "scale" => transformation.scale = read_float3(value),
                 _ => continue,
             }
-            println!("{}", name);
         }
     }
 }

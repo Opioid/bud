@@ -1,17 +1,27 @@
 use super::prop::Prop;
+use super::shape::Shape;
+use super::Ray;
 
-pub struct Scene {
-    props: Vec<Box<Prop>>,
+pub struct Scene<'a> {
+    props: Vec<Box<Prop<'a>>>,
 }
 
-impl Scene {
-    pub fn new() -> Scene {
+impl<'a> Scene<'a> {
+    pub fn new() -> Scene<'a> {
         Scene { props: Vec::new() }
     }
 
-    pub fn create_prop(&mut self) -> &mut Prop {
-        self.props.push(Box::new(Prop::new()));
+    pub fn create_prop(&mut self, shape: &'a dyn Shape) -> &mut Prop<'a> {
+        self.props.push(Box::new(Prop::new(shape)));
 
         self.props.last_mut().unwrap()
+    }
+
+    pub fn intersect(&self, ray: &mut Ray) -> bool {
+        for p in self.props.iter() {
+            p.intersect(ray);
+        }
+
+        true
     }
 }
