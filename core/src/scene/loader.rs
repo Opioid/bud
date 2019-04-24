@@ -6,7 +6,7 @@ use resource;
 use scene::prop::Prop;
 use scene::shape::{self, Shape};
 use scene::Scene;
-use serde_json::Value;
+use serde_json::{Map, Value};
 
 pub struct Loader {
     resource_manager: resource::Manager,
@@ -52,28 +52,23 @@ impl Loader {
         Ok(())
     }
 
-    fn load_entities<'a, 'b>(
-        &'a self,
-        entities_value: &serde_json::Value,
-        scene: &'b mut Scene<'a>,
-    ) {
+    fn load_entities<'a, 'b>(&'a self, entities_value: &Value, scene: &'b mut Scene<'a>) {
         if !entities_value.is_array() {
             return;
         }
 
         for e in entities_value.as_array().unwrap().iter() {
-            if !e.is_object() {
-                continue;
-            }
+            let e = match e {
+                Value::Object(e) => e,
+                _ => continue,
+            };
 
-            let e = e.as_object().unwrap();
+            let type_node = match e.get("type") {
+                None => continue,
+                Some(type_node) => type_node,
+            };
 
-            let type_node = &e.get("type");
-            if type_node.is_none() {
-                continue;
-            }
-
-            let type_name = type_node.unwrap().as_str().unwrap();
+            let type_name = type_node.as_str().unwrap();
 
             let mut entity = None;
 
@@ -90,10 +85,7 @@ impl Loader {
                 continue;
             }
 
-            let mut transformation = Transformation {
-                position: float3::from_scalar(0.0),
-                scale: float3::from_scalar(1.0),
-            };
+            let mut transformation = Transformation::identity();
 
             for (name, value) in e.iter() {
                 match name.as_ref() {
@@ -110,7 +102,7 @@ impl Loader {
 
     fn load_prop<'a, 'b>(
         &'a self,
-        prop_value: &serde_json::Map<String, serde_json::Value>,
+        prop_value: &Map<String, Value>,
         scene: &'b mut Scene<'a>,
     ) -> Option<&'b mut Prop> {
         let mut shape = None;
@@ -129,12 +121,11 @@ impl Loader {
         Some(scene.create_prop(shape.unwrap()))
     }
 
-    fn load_shape(&self, shape_value: &serde_json::Value) -> Option<&dyn Shape> {
-        if !shape_value.is_object() {
-            return None;
-        }
-
-        let shape_value = shape_value.as_object().unwrap();
+    fn load_shape(&self, shape_value: &Value) -> Option<&dyn Shape> {
+        let shape_value = match shape_value {
+            Value::Object(shape_value) => shape_value,
+            _ => return None,
+        };
 
         if let Some(type_name) = shape_value.get("type") {
             match type_name.as_str().unwrap() {

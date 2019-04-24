@@ -13,6 +13,7 @@ use base::random;
 use core::error::Error;
 use core::image;
 use core::image::encoding::rgbe;
+use core::sampler::CameraSample;
 use core::scene::prop::Intersection;
 use core::scene::{self, Ray, Scene};
 use core::take;
@@ -26,7 +27,7 @@ fn main() {
     let mut scene_loader = scene::Loader::new();
 
     {
-        let file_system = scene_loader.resource_manager().file_system(); // FileSystem::new();
+        let file_system = scene_loader.resource_manager().file_system();
 
         if options.mounts.is_empty() {
             file_system.push_mount("../data/");
@@ -64,11 +65,15 @@ fn main() {
             std::process::exit(1);
         }
 
-        let mut ray = Ray::new();
+        let sample = CameraSample::new();
 
-        let mut intersection = Intersection::new();
+        let mut ray = take.view.camera.generate_ray(&sample);
 
-        scene.intersect(&mut ray, &mut intersection);
+        if let Some(mut ray) = ray {
+            let mut intersection = Intersection::new();
+
+            scene.intersect(&mut ray, &mut intersection);
+        }
     }
 
     let mut rng = random::Generator::new(0, 0);
