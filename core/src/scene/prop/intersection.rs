@@ -1,14 +1,14 @@
 use super::Prop;
 use scene::shape;
 
-pub struct Intersection<'a> {
-    pub prop: Option<&'a Prop<'a>>,
+pub struct Intersection<'a, 'b> {
+    pub prop: Option<&'a Prop<'b>>,
 
     pub geo: shape::Intersection,
 }
 
-impl<'a> Intersection<'a> {
-    pub fn new() -> Intersection<'a> {
+impl<'a, 'b> Intersection<'a, 'b> {
+    pub fn new() -> Intersection<'a, 'b> {
         Intersection {
             prop: None,
             geo: shape::Intersection::new(),

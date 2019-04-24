@@ -6,7 +6,7 @@ pub struct Scene<'a> {
     props: Vec<Box<Prop<'a>>>,
 }
 
-impl<'a> Scene<'a> {
+impl<'a, 'b> Scene<'a> {
     pub fn new() -> Scene<'a> {
         Scene { props: Vec::new() }
     }
@@ -17,7 +17,7 @@ impl<'a> Scene<'a> {
         self.props.last_mut().unwrap()
     }
 
-    pub fn intersect(&self, ray: &mut Ray, intersection: &mut Intersection<'a>) -> bool {
+    pub fn intersect(&'b self, ray: &mut Ray, intersection: &mut Intersection<'a, 'b>) -> bool {
         for p in self.props.iter() {
             p.intersect(ray, &mut intersection.geo);
         }
