@@ -11,8 +11,8 @@ use base::math::vector2::int2;
 use base::math::vector3::float3;
 use base::random;
 use core::error::Error;
-use core::image;
 use core::image::encoding::rgbe;
+use core::image::{self, Writer};
 use core::sampler::CameraSample;
 use core::scene::prop::Intersection;
 use core::scene::{self, Ray, Scene};
@@ -51,7 +51,7 @@ fn main() {
         std::process::exit(1);
     }
 
-    let take = take.unwrap();
+    let mut take = take.unwrap();
 
     {
         let mut scene = Scene::new();
@@ -67,7 +67,7 @@ fn main() {
 
         let sample = CameraSample::new();
 
-        let mut ray = take.view.camera.generate_ray(&sample);
+        let ray = take.view.camera.generate_ray(&sample);
 
         if let Some(mut ray) = ray {
             let mut intersection = Intersection::new();
@@ -81,6 +81,8 @@ fn main() {
     for x in 0..10 {
         println!("Random number {}: {}", x, rng.random_float());
     }
+
+    let writer = rgbe::Writer {};
 
     {
         let file = File::create("image.hdr").expect("Unable to create file");
@@ -101,7 +103,7 @@ fn main() {
             }
         }
 
-        rgbe::Writer::write(&mut stream, &image);
+        writer.write(&mut stream, &image);
     }
 
     let mut stream = scene_loader
@@ -121,6 +123,10 @@ fn main() {
         let file = File::create("copy.hdr").expect("Unable to create file");
         let mut stream = BufWriter::new(file);
 
-        rgbe::Writer::write(&mut stream, &image);
+        writer.write(&mut stream, &image);
+    }
+
+    for e in take.exporters.iter_mut() {
+        e.write(&image);
     }
 }

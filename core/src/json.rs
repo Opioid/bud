@@ -28,6 +28,14 @@ pub fn read_float3(value: &Value) -> float3 {
     }
 }
 
+pub fn read_string_from<'a>(value: &'a Value, name: &str, default: &'a str) -> &'a str {
+    if let Some(value) = value.get(name) {
+        return value.as_str().unwrap();
+    }
+
+    default
+}
+
 pub fn read_transformation(value: &Value, transformation: &mut Transformation) {
     match value {
         Value::Array(array) => {}

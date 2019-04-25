@@ -1,0 +1,26 @@
+use super::Sink;
+use image::{Float3, Writer};
+use std::fs::File;
+use std::io::BufWriter;
+
+pub struct ImageSequence<T: Writer> {
+    filename: String,
+    writer: T,
+}
+
+impl<T: Writer> ImageSequence<T> {
+    pub fn new(filename: String, writer: T) -> ImageSequence<T> {
+        ImageSequence { filename, writer }
+    }
+}
+
+impl<T: Writer> Sink for ImageSequence<T> {
+    fn write(&mut self, image: &Float3) {
+        if let Ok(file) =
+            File::create(self.filename.to_string() + "." + self.writer.file_extension())
+        {
+            let mut stream = BufWriter::new(file);
+            self.writer.write(&mut stream, image);
+        }
+    }
+}

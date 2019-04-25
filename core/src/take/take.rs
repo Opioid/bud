@@ -1,3 +1,4 @@
+use exporting;
 use scene::camera::Camera;
 
 pub struct View {
@@ -20,6 +21,7 @@ impl View {
 pub struct Take {
     pub scene_filename: String,
     pub view: View,
+    pub exporters: Vec<Box<dyn exporting::Sink>>,
 }
 
 impl Take {
@@ -27,6 +29,7 @@ impl Take {
         Take {
             scene_filename: String::new(),
             view: View::new(camera),
+            exporters: Vec::new(),
         }
     }
 }
