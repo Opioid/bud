@@ -19,4 +19,6 @@ impl CameraBase {
 
 pub trait Camera {
     fn generate_ray(&self, sample: &CameraSample) -> Option<Ray>;
+
+    fn sensor_dimensions(&self) -> int2;
 }

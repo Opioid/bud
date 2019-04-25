@@ -16,9 +16,7 @@ impl<T: Writer> ImageSequence<T> {
 
 impl<T: Writer> Sink for ImageSequence<T> {
     fn write(&mut self, image: &Float3) {
-        if let Ok(file) =
-            File::create(self.filename.to_string() + "." + self.writer.file_extension())
-        {
+        if let Ok(file) = File::create(self.filename.clone() + "." + self.writer.file_extension()) {
             let mut stream = BufWriter::new(file);
             self.writer.write(&mut stream, image);
         }

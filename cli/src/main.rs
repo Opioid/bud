@@ -13,6 +13,7 @@ use base::random;
 use core::error::Error;
 use core::image::encoding::rgbe;
 use core::image::{self, Writer};
+use core::rendering::driver;
 use core::sampler::CameraSample;
 use core::scene::prop::Intersection;
 use core::scene::{self, Ray, Scene};
@@ -65,6 +66,8 @@ fn main() {
             std::process::exit(1);
         }
 
+        let driver = driver::FinalFrame::new(&take.view);
+
         let sample = CameraSample::new();
 
         let ray = take.view.camera.generate_ray(&sample);
@@ -74,6 +77,8 @@ fn main() {
 
             scene.intersect(&mut ray, &mut intersection);
         }
+
+        driver.render(&mut take.exporters);
     }
 
     let mut rng = random::Generator::new(0, 0);
@@ -124,9 +129,5 @@ fn main() {
         let mut stream = BufWriter::new(file);
 
         writer.write(&mut stream, &image);
-    }
-
-    for e in take.exporters.iter_mut() {
-        e.write(&image);
     }
 }

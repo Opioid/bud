@@ -25,4 +25,8 @@ impl Camera for Perspective {
     fn generate_ray(&self, sample: &CameraSample) -> Option<Ray> {
         Some(Ray::new())
     }
+
+    fn sensor_dimensions(&self) -> int2 {
+        self.base.resolution
+    }
 }
