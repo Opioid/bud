@@ -7,7 +7,7 @@ use exporting;
 use image;
 use json;
 use rendering::sensor::{Sensor, Unfiltered};
-use scene::camera::{Camera, Perspective};
+use scene::camera::{CameraBase, Camera, Perspective};
 use take::{Take, View};
 
 pub struct Loader {}
@@ -74,11 +74,14 @@ impl Loader {
         let mut transformation = Transformation::identity();
 
         let mut sensor = None;
+
+        let mut parameters_value = None;
         
         for (name, value) in type_value.iter() {
             match name.as_ref() {
                 "sensor" => sensor = Loader::load_sensor(value),
                 "transformation" => json::read_transformation(value, &mut transformation),
+                "parameters" => parameters_value = Some(value),
                 _ => (),
             }
         }
@@ -89,7 +92,13 @@ impl Loader {
             return None;
         }
 
-        Some(Box::new(Perspective::new(resolution, sensor)))
+        let mut camera = Box::new(Perspective::new(resolution, sensor));
+
+        if let Some(parameters_value) = parameters_value {
+            CameraBase::set_parameters(&mut (*camera), parameters_value);
+        }
+
+        Some(camera)
     }
 
     fn load_sensor(sensor_value: &Value) -> Option<(int2, Box<dyn Sensor>)> {

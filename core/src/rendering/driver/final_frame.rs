@@ -31,6 +31,8 @@ impl<'a> FinalFrame<'a> {
 
     fn render_frame(&mut self) {
         let camera = &mut (*self.base.view.camera);
+
+        camera.update();
         
         let d = camera.sensor_dimensions();
 
