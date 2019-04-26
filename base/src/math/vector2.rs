@@ -1,22 +1,30 @@
-#[derive(Copy, Clone, Eq, Debug)]
+use num::Zero;
+
+#[derive(Copy, Clone, PartialEq, Debug)]
 #[allow(non_camel_case_types)]
-pub struct int2 {
-    pub x: i32,
-    pub y: i32,
+pub struct vec2<T> {
+    pub x: T,
+    pub y: T,
 }
 
-impl int2 {
-    pub fn identity() -> int2 {
-        int2 { x: 0, y: 0 }
+impl<T: PartialEq + Zero> vec2<T> {
+    pub fn identity() -> vec2<T> {
+        vec2 { x: num::zero(), y: num::zero() }
     }
 
-    pub fn new(x: i32, y: i32) -> int2 {
-        int2 { x, y }
+    pub fn new(x: T, y: T) -> vec2<T> {
+        vec2 { x, y }
     }
 }
 
-impl PartialEq for int2 {
-    fn eq(&self, other: &int2) -> bool {
-        self.x == other.x && self.y == other.y
-    }
-}
+// impl<T: PartialEq> PartialEq for vec2<T> {
+//     fn eq(&self, other: &vec2<T>) -> bool {
+//         self.x == other.x && self.y == other.y
+//     }
+// }
+
+#[allow(non_camel_case_types)]
+pub type int2 = vec2<i32>;
+
+#[allow(non_camel_case_types)]
+pub type float2 = vec2<f32>;

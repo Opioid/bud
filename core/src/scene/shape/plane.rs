@@ -6,7 +6,7 @@ pub struct Plane {}
 
 impl Shape for Plane {
     fn intersect(&self, _ray: &mut Ray, intersection: &mut Intersection) -> bool {
-        println! {"Plane::intersect()"};
+        // println! {"Plane::intersect()"};
         false
     }
 }

@@ -2,6 +2,10 @@ use base::math::Transformation;
 use base::math::{float3, int2};
 use serde_json::Value;
 
+pub fn read_float(value: &Value) -> f32 {
+    value.as_f64().unwrap() as f32
+}
+
 pub fn read_int2(value: &Value) -> int2 {
     match value {
         Value::Array(a) => int2::new(a[0].as_i64().unwrap() as i32, a[1].as_i64().unwrap() as i32),

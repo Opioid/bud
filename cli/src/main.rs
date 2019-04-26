@@ -14,8 +14,7 @@ use core::error::Error;
 use core::image::encoding::rgbe;
 use core::image::{self, Writer};
 use core::rendering::driver;
-use core::sampler::CameraSample;
-use core::scene::prop::Intersection;
+
 use core::scene::{self, Ray, Scene};
 use core::take;
 use options::Options;
@@ -66,17 +65,7 @@ fn main() {
             std::process::exit(1);
         }
 
-        let driver = driver::FinalFrame::new(&take.view);
-
-        let sample = CameraSample::new();
-
-        let ray = take.view.camera.generate_ray(&sample);
-
-        if let Some(mut ray) = ray {
-            let mut intersection = Intersection::new();
-
-            scene.intersect(&mut ray, &mut intersection);
-        }
+        let mut driver = driver::FinalFrame::new(&mut take.view, &scene);
 
         driver.render(&mut take.exporters);
     }

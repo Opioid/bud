@@ -5,3 +5,6 @@ authors = ["Benjamin Savs"]
 
 [lib]
 name = "base"
+
+[dependencies]
+num = "*"

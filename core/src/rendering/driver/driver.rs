@@ -2,17 +2,20 @@ use base::math::int2;
 
 use image::Float3;
 use take::View;
+use scene::Scene;
 
 pub struct DriverBase<'a> {
-    view: &'a View,
+    pub view: &'a mut View,
+    pub scene: &'a Scene<'a>,
     pub target: Float3,
 }
 
 impl<'a> DriverBase<'a> {
-    pub fn new(view: &'a View) -> DriverBase<'a> {
+    pub fn new(view: &'a mut View, scene: &'a Scene) -> DriverBase<'a> {
+        let d = view.camera.sensor_dimensions();
         DriverBase {
-            view,
-            target: Float3::new(view.camera.sensor_dimensions()),
+            view, scene,
+            target: Float3::new(d),
         }
     }
 }

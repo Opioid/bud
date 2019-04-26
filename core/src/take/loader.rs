@@ -6,6 +6,7 @@ use base::math::{int2, Transformation};
 use exporting;
 use image;
 use json;
+use rendering::sensor::{Sensor, Unfiltered};
 use scene::camera::{Camera, Perspective};
 use take::{Take, View};
 
@@ -32,7 +33,7 @@ impl Loader {
                 "start_frame" => start_frame = value.as_u64().unwrap() as u32,
                 "num_frames" => num_frames = value.as_u64().unwrap() as u32,
                 "scene" => scene_filename = value.as_str().unwrap().to_string(),
-                _ => continue,
+                _ => (),
             }
         }
 
@@ -62,47 +63,52 @@ impl Loader {
     }
 
     fn load_camera(camera_value: &Value) -> Option<Box<dyn Camera>> {
-        if !camera_value.is_object() {
-            return None;
-        }
-
-        let camera_value = camera_value.as_object().unwrap();
+        let camera_value = camera_value.as_object()?;
 
         let (type_name, type_value) = camera_value.iter().next().unwrap();
 
         println!("{}", type_name);
 
-        if !type_value.is_object() {
-            return None;
-        }
-
-        let type_value = type_value.as_object().unwrap();
+        let type_value = type_value.as_object()?;
 
         let mut transformation = Transformation::identity();
 
-        let mut sensor_value = None;
-
+        let mut sensor = None;
+        
         for (name, value) in type_value.iter() {
             match name.as_ref() {
-                "sensor" => sensor_value = Some(value),
+                "sensor" => sensor = Loader::load_sensor(value),
                 "transformation" => json::read_transformation(value, &mut transformation),
-                _ => continue,
+                _ => (),
             }
         }
 
-        let mut resolution = int2::identity();
-        match sensor_value {
-            Some(sensor_value) => {
-                resolution = json::read_int2_from(sensor_value, "resolution", int2::new(0, 0));
-            }
-            _ => return None,
-        }
+        let (resolution, sensor) = sensor?;
 
         if int2::identity() == resolution {
             return None;
         }
 
-        Some(Box::new(Perspective::new(resolution)))
+        Some(Box::new(Perspective::new(resolution, sensor)))
+    }
+
+    fn load_sensor(sensor_value: &Value) -> Option<(int2, Box<dyn Sensor>)> {
+        let sensor_value = sensor_value.as_object()?;
+
+        let mut resolution = int2::identity();
+        let mut exposure = 0.0;
+        let mut alpha_transparency;
+
+        for (name, value) in sensor_value.iter() {
+            match name.as_ref() {
+                "resolution" => resolution = json::read_int2(value),
+                "exposure" => exposure = json::read_float(value),
+                "alpha_transparency" => alpha_transparency = value.as_bool().unwrap(),
+                _ => (),
+            }
+        }
+
+        Some((resolution, Box::new(Unfiltered::new(exposure))))
     }
 
     fn load_exporters(export_value: &Value, view: &mut View) -> Vec<Box<dyn exporting::Sink>> {
@@ -136,7 +142,7 @@ impl Loader {
                     }
                 }
                 "Statistics" => exporters.push(Box::new(exporting::Statistics {})),
-                _ => continue,
+                _ => (),
             }
         }
 
