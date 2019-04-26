@@ -7,7 +7,7 @@ pub struct vec2<T> {
     pub y: T,
 }
 
-impl<T: PartialEq + Zero> vec2<T> {
+impl<T: Zero> vec2<T> {
     pub fn identity() -> vec2<T> {
         vec2 { x: num::zero(), y: num::zero() }
     }
