@@ -1,5 +1,5 @@
 use base::math::Transformation;
-use base::math::{float3, int2};
+use base::math::{self, float3, float3x3, int2, Quaternion};
 use serde_json::Value;
 
 pub fn read_float(value: &Value) -> f32 {
@@ -40,6 +40,22 @@ pub fn read_string_from<'a>(value: &'a Value, name: &str, default: &'a str) -> &
     default
 }
 
+fn create_rotation_matrix(xyz: &float3) -> float3x3 {
+    let rot_x = float3x3::rotation_x(math::degrees_to_radians(xyz.v[0]));
+
+    rot_x
+}
+
+fn read_rotation_matrix(value: &Value) -> float3x3 {
+    let rot = read_float3(value);
+
+    create_rotation_matrix(&rot)
+}
+
+fn read_local_rotation(value: &Value) -> Quaternion {
+    Quaternion::from_matrix(&read_rotation_matrix(value))
+}
+
 pub fn read_transformation(value: &Value, transformation: &mut Transformation) {
     match value {
         Value::Array(array) => {}
@@ -48,6 +64,7 @@ pub fn read_transformation(value: &Value, transformation: &mut Transformation) {
                 match name.as_ref() {
                     "position" => transformation.position = read_float3(value),
                     "scale" => transformation.scale = read_float3(value),
+                    "rotation" => transformation.rotation = read_local_rotation(value),
                     _ => continue,
                 }
             }

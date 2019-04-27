@@ -23,20 +23,20 @@ impl image::Writer for Writer {
 fn write_header(stream: &mut Write, dimensions: int2) {
     stream.write(b"#?RGBE\n").unwrap();
     stream.write(b"FORMAT=32-bit_rle_rgbe\n\n").unwrap();
-    write!(stream, "-Y {} +X {}\n", dimensions.y, dimensions.x).unwrap();
+    write!(stream, "-Y {} +X {}\n", dimensions.v[1], dimensions.v[0]).unwrap();
 }
 
 fn write_pixels(stream: &mut Write, image: &Float3) {
     let d = image.dimensions;
-    for i in 0..d.x * d.y {
+    for i in 0..d.v[0] * d.v[1] {
         let rgbe = float_to_rgbe(image.get_by_index(i));
         stream.write(&rgbe).unwrap();
     }
 }
 
 fn write_pixels_rle(stream: &mut Write, image: &Float3) {
-    let scanline_width = image.dimensions.x;
-    let num_scanlines = image.dimensions.y;
+    let scanline_width = image.dimensions.v[0];
+    let num_scanlines = image.dimensions.v[1];
 
     if scanline_width < 8 || scanline_width > 0x7FFF {
         return write_pixels(stream, image);
@@ -163,14 +163,14 @@ fn frexp(s: f32) -> (f32, i32) {
 }
 
 fn float_to_rgbe(c: float3) -> [u8; 4] {
-    let mut v = c.x;
+    let mut v = c.v[0];
 
-    if c.y > v {
-        v = c.y
+    if c.v[1] > v {
+        v = c.v[1]
     }
 
-    if c.z > v {
-        v = c.z
+    if c.v[2] > v {
+        v = c.v[2]
     }
 
     if v < 1e-32 {
@@ -181,9 +181,9 @@ fn float_to_rgbe(c: float3) -> [u8; 4] {
         v = f * 256.0 / v;
 
         return [
-            (c.x * v) as u8,
-            (c.y * v) as u8,
-            (c.z * v) as u8,
+            (c.v[0] * v) as u8,
+            (c.v[1] * v) as u8,
+            (c.v[2] * v) as u8,
             (e + 128) as u8,
         ];
     }

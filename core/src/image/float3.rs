@@ -10,7 +10,7 @@ impl Float3 {
     pub fn new(dimensions: int2) -> Float3 {
         Float3 {
             dimensions,
-            data: vec![float3::from_scalar(0.0); (dimensions.x * dimensions.y) as usize],
+            data: vec![float3::from_scalar(0.0); (dimensions.v[0] * dimensions.v[1]) as usize],
         }
     }
 
@@ -23,7 +23,7 @@ impl Float3 {
     }
 
     pub fn set(&mut self, x: i32, y: i32, v: float3) {
-        let i = y * self.dimensions.x + x;
+        let i = y * self.dimensions.v[0] + x;
         self.data[i as usize] = v;
     }
 }

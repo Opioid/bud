@@ -88,10 +88,10 @@ fn main() {
 
         let d = image.dimensions;
 
-        for y in 0..d.y {
-            for x in 0..d.x {
-                let r = x as f32 / (d.x - 1) as f32;
-                let g = y as f32 / (d.y - 1) as f32;
+        for y in 0..d.v[1] {
+            for x in 0..d.v[0] {
+                let r = x as f32 / (d.v[0] - 1) as f32;
+                let g = y as f32 / (d.v[1] - 1) as f32;
 
                 image.set(x, y, float3::new(r, g, 1.0))
             }
@@ -110,7 +110,7 @@ fn main() {
 
     println!(
         "Image dimensions {} {}",
-        image.dimensions.x, image.dimensions.y
+        image.dimensions.v[0], image.dimensions.v[1]
     );
 
     {

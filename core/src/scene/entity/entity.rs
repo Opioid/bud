@@ -12,6 +12,10 @@ impl Entity {
         }
     }
 
+    pub fn transformation_at(&self, time: u64) -> ComposedTransformation {
+        self.world_transformation
+    }
+
     pub fn set_transformation(&mut self, transformation: &Transformation) {
         self.world_transformation.set(transformation);
     }

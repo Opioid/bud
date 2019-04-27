@@ -7,10 +7,7 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn new() -> Ray {
-        Ray {
-            org: float3::identity(),
-            dir: float3::new(0.0, 0.0, 1.0),
-        }
+    pub fn new(org: float3, dir: float3) -> Ray {
+        Ray { org, dir }
     }
 }

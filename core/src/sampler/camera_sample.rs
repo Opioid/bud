@@ -1,4 +1,4 @@
-use base::math::{int2, float2};
+use base::math::{float2, int2};
 
 pub struct CameraSample {
     pub pixel: int2,
