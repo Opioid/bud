@@ -15,7 +15,7 @@ use core::image::encoding::rgbe;
 use core::image::{self, Writer};
 use core::rendering::driver;
 
-use core::scene::{self, Ray, Scene};
+use core::scene::{self, Scene};
 use core::take;
 use options::Options;
 

@@ -49,7 +49,7 @@ impl Camera for Perspective {
 
         let left_top = float3::new(-ratio, 1.0, z);
         let right_top = float3::new(ratio, 1.0, z);
-        let left_bottom = float3::new(ratio, -1.0, z);
+        let left_bottom = float3::new(-ratio, -1.0, z);
 
         self.left_top = left_top;
         self.d_x = (right_top - left_top) / fr.v[0];
