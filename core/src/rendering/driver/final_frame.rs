@@ -1,26 +1,29 @@
 use super::driver::DriverBase;
-use base::math::{float3, int2};
+use base::math::{float3, float4, int2};
 use exporting;
+use rendering::integrator::surface::{AoFactory, Integrator};
 use sampler::CameraSample;
 use scene::prop::Intersection;
-use scene::Scene;
+use scene::{Ray, Scene};
 use take::View;
 
-pub struct FinalFrame<'a> {
+pub struct FinalFrame<'a, 'b> {
     base: DriverBase<'a>,
+    integrator: Box<dyn Integrator<'a, 'b>>,
 }
 
-impl<'a> FinalFrame<'a> {
-    pub fn new(view: &'a mut View, scene: &'a Scene) -> FinalFrame<'a> {
+impl<'a, 'b> FinalFrame<'a, 'b> {
+    pub fn new(dimensions: int2, scene: &'a Scene) -> FinalFrame<'a, 'b> {
         FinalFrame {
-            base: DriverBase::new(view, scene),
+            base: DriverBase::new(dimensions, scene),
+            integrator: AoFactory::create(),
         }
     }
 
-    pub fn render(&mut self, exporters: &mut [Box<dyn exporting::Sink>]) {
-        self.render_frame();
+    pub fn render(&'b mut self, view: &mut View, exporters: &mut [Box<dyn exporting::Sink>]) {
+        self.render_frame(view);
 
-        let sensor = self.base.view.camera.sensor_mut();
+        let sensor = view.camera.sensor_mut();
 
         sensor.resolve(&mut self.base.target);
 
@@ -29,8 +32,8 @@ impl<'a> FinalFrame<'a> {
         }
     }
 
-    fn render_frame(&mut self) {
-        let camera = &mut (*self.base.view.camera);
+    fn render_frame(&'b mut self, view: &mut View) {
+        let camera = &mut view.camera;
 
         camera.update();
 
@@ -43,17 +46,25 @@ impl<'a> FinalFrame<'a> {
                 let ray = camera.generate_ray(&sample);
 
                 if let Some(mut ray) = ray {
-                    // println!("{:?}", ray.ray.dir);
+                    let color = self.li(&mut ray);
 
-                    let mut intersection = Intersection::new();
-
-                    if self.base.scene.intersect(&mut ray, &mut intersection) {
-                        let color = float3::new(1.0, 0.0, 0.0);
-
-                        camera.sensor_mut().add_sample(&sample, &color);
-                    }
+                    camera.sensor_mut().add_sample(&sample, &color);
                 }
             }
         }
+    }
+
+    fn li(&'b mut self, ray: &mut Ray) -> float4 {
+        let mut intersection = Intersection::new();
+
+        let hit = self.base.worker.intersect(ray, &mut intersection);
+
+        if hit {
+            return self
+                .integrator
+                .li(ray, &mut intersection, &mut self.base.worker);
+        }
+
+        float4::identity()
     }
 }

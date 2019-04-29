@@ -29,4 +29,8 @@ impl<'a, 'b> Scene<'a> {
 
         hit
     }
+
+    pub fn visibility(&'b self, ray: &Ray) -> Option<f32> {
+        None
+    }
 }

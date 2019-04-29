@@ -1,4 +1,4 @@
-use base::math::{float3, int2};
+use base::math::{float4, int2};
 use image::Float3;
 use sampler::CameraSample;
 
@@ -21,5 +21,5 @@ pub trait Sensor {
 
     fn resolve(&self, target: &mut Float3);
 
-    fn add_sample(&mut self, sample: &CameraSample, color: &float3);
+    fn add_sample(&mut self, sample: &CameraSample, color: &float4);
 }

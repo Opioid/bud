@@ -61,7 +61,7 @@ impl Camera for Perspective {
     fn generate_ray(&self, sample: &CameraSample) -> Option<Ray> {
         let coords = float2::from(sample.pixel) + sample.pixel_uv;
 
-        let mut direction = self.left_top + coords.v[0] * self.d_x + coords.v[1] * self.d_y;
+        let direction = self.left_top + coords.v[0] * self.d_x + coords.v[1] * self.d_y;
 
         let origin = float3::identity();
 
