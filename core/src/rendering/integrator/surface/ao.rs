@@ -1,5 +1,6 @@
 use super::Integrator;
 use base::math::float4;
+use base::random;
 use rendering::Worker;
 use scene::prop::Intersection;
 use scene::Ray;
@@ -20,7 +21,7 @@ impl Integrator for Ao {
 pub struct AoFactory {}
 
 impl AoFactory {
-    pub fn create() -> Box<dyn Integrator> {
+    pub fn create(rng: &mut random::Generator) -> Box<dyn Integrator> {
         Box::new(Ao {})
     }
 }

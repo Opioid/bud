@@ -1,5 +1,6 @@
 use super::driver::DriverBase;
 use base::math::{float4, int2};
+use base::random;
 use exporting;
 use rendering::integrator::surface::{AoFactory, Integrator};
 use sampler::CameraSample;
@@ -9,6 +10,7 @@ use take::View;
 
 pub struct FinalFrame<'a> {
     base: DriverBase<'a>,
+    rng: random::Generator,
     integrator: Box<dyn Integrator>,
 }
 
@@ -16,7 +18,8 @@ impl<'a, 'b> FinalFrame<'a> {
     pub fn new(dimensions: int2, scene: &'a Scene) -> FinalFrame<'a> {
         FinalFrame {
             base: DriverBase::new(dimensions, scene),
-            integrator: AoFactory::create(),
+            rng: random::Generator::new(0, 0),
+            integrator: AoFactory::create(&mut rng),
         }
     }
 
