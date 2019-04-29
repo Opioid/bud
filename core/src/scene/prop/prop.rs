@@ -1,10 +1,12 @@
 use scene::entity::Entity;
+use scene::material::Material;
 use scene::shape::{Intersection, Shape};
 use scene::Ray;
 
 pub struct Prop<'a> {
     pub entity: Entity,
     shape: &'a dyn Shape,
+    materials: Vec<&'a dyn Material>,
 }
 
 impl<'a> Prop<'a> {
@@ -12,6 +14,7 @@ impl<'a> Prop<'a> {
         Prop {
             entity: Entity::new(),
             shape,
+            materials: Vec::new(),
         }
     }
 
@@ -19,5 +22,9 @@ impl<'a> Prop<'a> {
         return self
             .shape
             .intersect(ray, &self.entity.transformation_at(0), intersection);
+    }
+
+    pub fn material(&self, index: u32) -> &dyn Material {
+        self.materials[index as usize]
     }
 }

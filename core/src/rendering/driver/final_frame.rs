@@ -1,5 +1,5 @@
 use super::driver::DriverBase;
-use base::math::{float3, float4, int2};
+use base::math::{float4, int2};
 use exporting;
 use rendering::integrator::surface::{AoFactory, Integrator};
 use sampler::CameraSample;
@@ -7,13 +7,13 @@ use scene::prop::Intersection;
 use scene::{Ray, Scene};
 use take::View;
 
-pub struct FinalFrame<'a, 'b> {
+pub struct FinalFrame<'a> {
     base: DriverBase<'a>,
-    integrator: Box<dyn Integrator<'a, 'b>>,
+    integrator: Box<dyn Integrator>,
 }
 
-impl<'a, 'b> FinalFrame<'a, 'b> {
-    pub fn new(dimensions: int2, scene: &'a Scene) -> FinalFrame<'a, 'b> {
+impl<'a, 'b> FinalFrame<'a> {
+    pub fn new(dimensions: int2, scene: &'a Scene) -> FinalFrame<'a> {
         FinalFrame {
             base: DriverBase::new(dimensions, scene),
             integrator: AoFactory::create(),
@@ -32,7 +32,7 @@ impl<'a, 'b> FinalFrame<'a, 'b> {
         }
     }
 
-    fn render_frame(&'b mut self, view: &mut View) {
+    fn render_frame(&mut self, view: &mut View) {
         let camera = &mut view.camera;
 
         camera.update();
@@ -54,7 +54,7 @@ impl<'a, 'b> FinalFrame<'a, 'b> {
         }
     }
 
-    fn li(&'b mut self, ray: &mut Ray) -> float4 {
+    fn li(&mut self, ray: &mut Ray) -> float4 {
         let mut intersection = Intersection::new();
 
         let hit = self.base.worker.intersect(ray, &mut intersection);

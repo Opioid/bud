@@ -10,7 +10,6 @@ use std::io::BufWriter;
 use base::math::vector2::int2;
 use base::math::vector3::float3;
 use base::random;
-use core::error::Error;
 use core::image::encoding::rgbe;
 use core::image::{self, Writer};
 use core::rendering::driver;

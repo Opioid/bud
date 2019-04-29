@@ -1,3 +1,4 @@
+use super::material::Material;
 use super::prop::{Intersection, Prop};
 use super::shape::Shape;
 use super::Ray;
@@ -6,7 +7,7 @@ pub struct Scene<'a> {
     props: Vec<Box<Prop<'a>>>,
 }
 
-impl<'a, 'b> Scene<'a> {
+impl<'a> Scene<'a> {
     pub fn new() -> Scene<'a> {
         Scene { props: Vec::new() }
     }
@@ -17,12 +18,12 @@ impl<'a, 'b> Scene<'a> {
         self.props.last_mut().unwrap()
     }
 
-    pub fn intersect(&'b self, ray: &mut Ray, intersection: &mut Intersection<'a, 'b>) -> bool {
+    pub fn intersect(&self, ray: &mut Ray, intersection: &mut Intersection) -> bool {
         let mut hit = false;
 
-        for p in self.props.iter() {
+        for (i, p) in self.props.iter().enumerate() {
             if p.intersect(ray, &mut intersection.geo) {
-                intersection.prop = Some(p);
+                intersection.prop = i as u32;
                 hit = true;
             }
         }
@@ -30,7 +31,11 @@ impl<'a, 'b> Scene<'a> {
         hit
     }
 
-    pub fn visibility(&'b self, ray: &Ray) -> Option<f32> {
+    pub fn visibility(&self, ray: &Ray) -> Option<f32> {
         None
+    }
+
+    pub fn material(&self, prop: u32, part: u32) -> &dyn Material {
+        unsafe { self.props.get_unchecked(prop as usize).material(part) }
     }
 }

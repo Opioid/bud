@@ -3,11 +3,7 @@ use rendering::Worker;
 use scene::prop::Intersection;
 use scene::Ray;
 
-pub trait Integrator<'a, 'b> {
-    fn li(
-        &'b mut self,
-        ray: &mut Ray,
-        intersection: &mut Intersection<'a, 'b>,
-        worker: &mut Worker,
-    ) -> float4;
+pub trait Integrator {
+    fn li(&mut self, ray: &mut Ray, intersection: &mut Intersection, worker: &mut Worker)
+        -> float4;
 }

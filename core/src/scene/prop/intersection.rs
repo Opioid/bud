@@ -1,17 +1,22 @@
-use super::Prop;
+use rendering::Worker;
+use scene::material::Material;
 use scene::shape;
 
-pub struct Intersection<'a, 'b> {
-    pub prop: Option<&'a Prop<'b>>,
+pub struct Intersection {
+    pub prop: u32,
 
     pub geo: shape::Intersection,
 }
 
-impl<'a, 'b> Intersection<'a, 'b> {
-    pub fn new() -> Intersection<'a, 'b> {
+impl Intersection {
+    pub fn new() -> Intersection {
         Intersection {
-            prop: None,
+            prop: 0xFFFFFFFF,
             geo: shape::Intersection::new(),
         }
+    }
+
+    pub fn material<'a>(&self, worker: &'a Worker) -> &'a dyn Material {
+        worker.material(self.prop, self.geo.part)
     }
 }
