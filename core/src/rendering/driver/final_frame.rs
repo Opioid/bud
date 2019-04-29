@@ -47,12 +47,12 @@ impl<'a> FinalFrame<'a> {
 
                     let mut intersection = Intersection::new();
 
-                    self.base.scene.intersect(&mut ray, &mut intersection);
+                    if self.base.scene.intersect(&mut ray, &mut intersection) {
+                        let color = float3::new(1.0, 0.0, 0.0);
+
+                        camera.sensor_mut().add_sample(&sample, &color);
+                    }
                 }
-
-                let color = float3::new(1.0, 0.0, 0.0);
-
-                camera.sensor_mut().add_sample(&sample, &color);
             }
         }
     }

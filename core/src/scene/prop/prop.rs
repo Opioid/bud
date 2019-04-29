@@ -16,6 +16,8 @@ impl<'a> Prop<'a> {
     }
 
     pub fn intersect(&self, ray: &mut Ray, intersection: &mut Intersection) -> bool {
-        return self.shape.intersect(ray, intersection);
+        return self
+            .shape
+            .intersect(ray, &self.entity.transformation_at(0), intersection);
     }
 }

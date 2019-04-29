@@ -18,12 +18,15 @@ impl<'a, 'b> Scene<'a> {
     }
 
     pub fn intersect(&'b self, ray: &mut Ray, intersection: &mut Intersection<'a, 'b>) -> bool {
+        let mut hit = false;
+
         for p in self.props.iter() {
-            p.intersect(ray, &mut intersection.geo);
+            if p.intersect(ray, &mut intersection.geo) {
+                intersection.prop = Some(p);
+                hit = true;
+            }
         }
 
-        intersection.prop = Some(&self.props[0]);
-
-        true
+        hit
     }
 }

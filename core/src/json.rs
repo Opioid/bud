@@ -42,8 +42,10 @@ pub fn read_string_from<'a>(value: &'a Value, name: &str, default: &'a str) -> &
 
 fn create_rotation_matrix(xyz: &float3) -> float3x3 {
     let rot_x = float3x3::rotation_x(math::degrees_to_radians(xyz.v[0]));
+    let rot_y = float3x3::rotation_y(math::degrees_to_radians(xyz.v[1]));
+    let rot_z = float3x3::rotation_z(math::degrees_to_radians(xyz.v[2]));
 
-    rot_x
+    rot_z * rot_x * rot_y
 }
 
 fn read_rotation_matrix(value: &Value) -> float3x3 {
@@ -65,10 +67,10 @@ pub fn read_transformation(value: &Value, transformation: &mut Transformation) {
                     "position" => transformation.position = read_float3(value),
                     "scale" => transformation.scale = read_float3(value),
                     "rotation" => transformation.rotation = read_local_rotation(value),
-                    _ => continue,
+                    _ => (),
                 }
             }
         }
-        _ => {}
+        _ => (),
     }
 }

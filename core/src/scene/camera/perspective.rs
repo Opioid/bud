@@ -72,7 +72,7 @@ impl Camera for Perspective {
         let direction = direction.normalized();
         let direction_w = transformation.object_to_world.transform_vector(&direction);
 
-        Some(Ray::new(origin_w, direction_w))
+        Some(Ray::new(origin_w, direction_w, 0.0, 1000.0))
     }
 
     fn sensor_mut(&mut self) -> &mut dyn Sensor {

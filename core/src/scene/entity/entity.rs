@@ -1,5 +1,5 @@
 use super::ComposedTransformation;
-use base::math::Transformation;
+use base::math::{float3, float3x3, Transformation};
 
 pub struct Entity {
     world_transformation: ComposedTransformation,
