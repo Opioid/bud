@@ -24,7 +24,7 @@ impl<'a> Prop<'a> {
             .intersect(ray, &self.entity.transformation_at(0), intersection);
     }
 
-    pub fn material(&self, index: u32) -> &dyn Material {
-        self.materials[index as usize]
+    pub unsafe fn material(&self, index: u32) -> &dyn Material {
+        *self.materials.get_unchecked(index as usize)
     }
 }

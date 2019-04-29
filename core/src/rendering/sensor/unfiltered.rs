@@ -34,6 +34,8 @@ impl Sensor for Unfiltered {
 
     fn add_sample(&mut self, sample: &CameraSample, color: &float4) {
         let i = sample.pixel.v[1] * self.base.dimensions.v[0] + sample.pixel.v[0];
-        self.pixels[i as usize] = *color;
+        unsafe {
+            *self.pixels.get_unchecked_mut(i as usize) = *color;
+        }
     }
 }
