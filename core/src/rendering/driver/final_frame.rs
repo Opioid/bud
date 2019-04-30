@@ -10,20 +10,25 @@ use take::View;
 
 pub struct FinalFrame<'a> {
     base: DriverBase<'a>,
-    rng: random::Generator,
-    integrator: Box<dyn Integrator>,
+
+    integrators: Vec<Box<dyn Integrator>>,
 }
 
 impl<'a, 'b> FinalFrame<'a> {
     pub fn new(dimensions: int2, scene: &'a Scene) -> FinalFrame<'a> {
-        FinalFrame {
+        let mut ff = FinalFrame {
             base: DriverBase::new(dimensions, scene),
-            rng: random::Generator::new(0, 0),
-            integrator: AoFactory::create(&mut rng),
-        }
+            integrators: Vec::new(),
+        };
+
+     //   ff.integrators.push(AoFactory::create(ff.base.worker.rng()));
+
+AoFactory::create(ff.base.worker.rng());
+        
+        ff
     }
 
-    pub fn render(&'b mut self, view: &mut View, exporters: &mut [Box<dyn exporting::Sink>]) {
+    pub fn render(&mut self, view: &mut View, exporters: &mut [Box<dyn exporting::Sink>]) {
         self.render_frame(view);
 
         let sensor = view.camera.sensor_mut();
@@ -64,7 +69,7 @@ impl<'a, 'b> FinalFrame<'a> {
 
         if hit {
             return self
-                .integrator
+                .integrators[0]
                 .li(ray, &mut intersection, &mut self.base.worker);
         }
 
