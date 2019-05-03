@@ -64,7 +64,7 @@ fn main() {
             std::process::exit(1);
         }
 
-        let mut driver = driver::FinalFrame::new(take.view.camera.sensor_dimensions());
+        let mut driver = driver::FinalFrame::new(&take);
 
         driver.render(&scene, &mut take.view, &mut take.exporters);
     }

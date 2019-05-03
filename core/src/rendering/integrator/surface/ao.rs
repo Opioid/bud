@@ -1,4 +1,4 @@
-use super::Integrator;
+use super::{Factory, Integrator};
 use base::math::{self, float3, float4};
 use base::random;
 use rendering::Worker;
@@ -78,8 +78,10 @@ impl AoFactory {
             },
         }
     }
+}
 
-    pub fn create(&self) -> Box<dyn Integrator> {
+impl Factory for AoFactory {
+    fn create(&self) -> Box<dyn Integrator> {
         Box::new(Ao::new(self.settings))
     }
 }

@@ -6,6 +6,7 @@ use base::math::{int2, Transformation};
 use exporting;
 use image;
 use json;
+use rendering::integrator::surface::{AoFactory, Factory};
 use rendering::sensor::{Sensor, Unfiltered};
 use scene::camera::{Camera, CameraBase, Perspective};
 use take::{Take, View};
@@ -25,6 +26,7 @@ impl Loader {
         let mut start_frame = 0u32;
         let mut num_frames = 1u32;
         let mut scene_filename = String::new();
+        let mut surface_factory = None;
 
         for (name, value) in root.iter() {
             match name.as_ref() {
@@ -32,6 +34,7 @@ impl Loader {
                 "export" => export_value = Some(value),
                 "start_frame" => start_frame = value.as_u64().unwrap() as u32,
                 "num_frames" => num_frames = value.as_u64().unwrap() as u32,
+                "integrator" => Loader::load_integrator_factories(value, &mut surface_factory),
                 "scene" => scene_filename = value.as_str().unwrap().to_string(),
                 _ => (),
             }
@@ -41,7 +44,14 @@ impl Loader {
             return Err(Error::new("No camera."));
         }
 
-        let mut take = Take::new(camera.unwrap());
+        if surface_factory.is_none() {
+            let num_samples = 1;
+            let radius = 1.0;
+
+            surface_factory = Some(Box::new(AoFactory::new(num_samples, radius)));
+        }
+
+        let mut take = Take::new(camera.unwrap(), surface_factory.unwrap());
 
         take.view.start_frame = start_frame;
         take.view.num_frames = num_frames;
@@ -158,5 +168,42 @@ impl Loader {
         }
 
         exporters
+    }
+
+    fn load_integrator_factories(
+        integrator_value: &Value,
+        surface_factory: &mut Option<Box<dyn Factory>>,
+    ) {
+        let integrator_value = match integrator_value {
+            Value::Object(integrator_value) => integrator_value,
+            _ => return,
+        };
+
+        for (name, value) in integrator_value.iter() {
+            match name.as_ref() {
+                "surface" => *surface_factory = Loader::load_surface_integrator_factory(value),
+                _ => (),
+            }
+        }
+    }
+
+    fn load_surface_integrator_factory(integrator_value: &Value) -> Option<Box<dyn Factory>> {
+        let integrator_value = match integrator_value {
+            Value::Object(integrator_value) => integrator_value,
+            _ => return None,
+        };
+
+        for (name, value) in integrator_value.iter() {
+            match name.as_ref() {
+                "AO" => {
+                    let num_samples = json::read_uint_from(value, "num_samples", 1);
+                    let radius = json::read_float_from(value, "radius", 1.0);
+                    return Some(Box::new(AoFactory::new(num_samples, radius)));
+                }
+                _ => (),
+            }
+        }
+
+        None
     }
 }

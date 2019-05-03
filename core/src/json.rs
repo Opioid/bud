@@ -2,8 +2,28 @@ use base::math::Transformation;
 use base::math::{self, float3, float3x3, int2, Quaternion};
 use serde_json::Value;
 
+pub fn read_uint(value: &Value) -> u32 {
+    value.as_u64().unwrap() as u32
+}
+
+pub fn read_uint_from(value: &Value, name: &str, default: u32) -> u32 {
+    if let Some(value) = value.get(name) {
+        return read_uint(value);
+    };
+
+    default
+}
+
 pub fn read_float(value: &Value) -> f32 {
     value.as_f64().unwrap() as f32
+}
+
+pub fn read_float_from(value: &Value, name: &str, default: f32) -> f32 {
+    if let Some(value) = value.get(name) {
+        return read_float(value);
+    };
+
+    default
 }
 
 pub fn read_int2(value: &Value) -> int2 {

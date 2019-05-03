@@ -12,3 +12,7 @@ pub trait Integrator {
         worker: &mut Worker,
     ) -> float4;
 }
+
+pub trait Factory {
+    fn create(&self) -> Box<dyn Integrator>;
+}

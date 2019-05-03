@@ -2,28 +2,29 @@ use super::driver::DriverBase;
 use base::math::{float4, int2};
 use base::random;
 use exporting;
-use rendering::integrator::surface::{AoFactory, Integrator};
+use rendering::integrator::surface::Integrator;
 use sampler::CameraSample;
 use scene::prop::Intersection;
 use scene::{Ray, Scene};
-use take::View;
+use take::{Take, View};
 
-pub struct FinalFrame<'a> {
+pub struct FinalFrame {
     base: DriverBase,
 
-    integrators: Vec<Box<dyn Integrator + 'a>>,
+    integrators: Vec<Box<dyn Integrator>>,
 }
 
-impl<'a> FinalFrame<'a> {
-    pub fn new(dimensions: int2) -> FinalFrame<'a> {
+impl FinalFrame {
+    pub fn new(take: &Take) -> FinalFrame {
+        let dimensions = take.view.camera.sensor_dimensions();
+
         let mut ff = FinalFrame {
             base: DriverBase::new(dimensions),
             integrators: Vec::new(),
         };
 
-        let factory = AoFactory::new(16, 10.0);
-
-        ff.integrators.push(factory.create());
+        ff.integrators
+            .push(take.surface_integrator_factory.create());
 
         ff
     }

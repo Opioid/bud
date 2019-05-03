@@ -1,4 +1,5 @@
 use exporting;
+use rendering::integrator::surface::Factory;
 use scene::camera::Camera;
 
 pub struct View {
@@ -21,14 +22,16 @@ impl View {
 pub struct Take {
     pub scene_filename: String,
     pub view: View,
+    pub surface_integrator_factory: Box<dyn Factory>,
     pub exporters: Vec<Box<dyn exporting::Sink>>,
 }
 
 impl Take {
-    pub fn new(camera: Box<dyn Camera>) -> Take {
+    pub fn new(camera: Box<dyn Camera>, surface_integrator_factory: Box<dyn Factory>) -> Take {
         Take {
             scene_filename: String::new(),
             view: View::new(camera),
+            surface_integrator_factory,
             exporters: Vec::new(),
         }
     }
