@@ -8,3 +8,4 @@ name = "base"
 
 [dependencies]
 num = "*"
+num_cpus = "*"

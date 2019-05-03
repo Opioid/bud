@@ -1,6 +1,7 @@
 use super::driver::DriverBase;
 use base::math::{float4, int2};
 use base::random;
+use base::thread;
 use exporting;
 use rendering::integrator::surface::Integrator;
 use sampler::CameraSample;
@@ -8,18 +9,18 @@ use scene::prop::Intersection;
 use scene::{Ray, Scene};
 use take::{Take, View};
 
-pub struct FinalFrame {
-    base: DriverBase,
+pub struct FinalFrame<'a> {
+    base: DriverBase<'a>,
 
     integrators: Vec<Box<dyn Integrator>>,
 }
 
-impl FinalFrame {
-    pub fn new(take: &Take) -> FinalFrame {
+impl<'a> FinalFrame<'a> {
+    pub fn new(thread_pool: &'a thread::Pool, take: &Take) -> FinalFrame<'a> {
         let dimensions = take.view.camera.sensor_dimensions();
 
         let mut ff = FinalFrame {
-            base: DriverBase::new(dimensions),
+            base: DriverBase::new(thread_pool, dimensions),
             integrators: Vec::new(),
         };
 

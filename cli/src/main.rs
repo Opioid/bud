@@ -4,28 +4,38 @@ extern crate core;
 mod options;
 
 use std::env;
-use std::fs::File;
-use std::io::BufWriter;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use base::chrono;
-use base::math::vector2::int2;
-use base::math::vector3::float3;
-use base::random;
-use core::image::encoding::rgbe;
-use core::image::{self, Writer};
+use base::thread;
 use core::rendering::driver;
-
 use core::scene::{self, Scene};
 use core::take;
 use options::Options;
 
 fn main() {
     let total_start = Instant::now();
-    
+
+    println!("Welcome to bud ()!");
+
     let args: Vec<String> = env::args().collect();
 
     let options = Options::new(&args);
+
+    let available_threads = thread::available_threads();
+
+    let num_workers;
+
+    if options.threads <= 0 {
+        let num_threads = available_threads as i32 + options.threads;
+        num_workers = num_threads.max(1) as u32;
+    } else {
+        num_workers = available_threads.min(options.threads.max(1) as u32);
+    }
+
+    println!("#Threads {}", num_workers);
+
+    let mut thread_pool = thread::Pool::new(num_workers);
 
     let mut scene_loader = scene::Loader::new();
 
@@ -40,7 +50,7 @@ fn main() {
     println!("Loading...");
 
     let loading_start = Instant::now();
-    
+
     let stream = scene_loader
         .resource_manager()
         .file_system()
@@ -60,28 +70,38 @@ fn main() {
 
     let mut take = take.unwrap();
 
-        let mut scene = Scene::new();
+    let mut scene = Scene::new();
 
-        if let Err(err) = scene_loader.load(&take.scene_filename, &mut scene) {
-            println!(
-                "Loading take \"{}\": {}",
-                take.scene_filename,
-                err.message()
-            );
-            std::process::exit(1);
-        }
+    if let Err(err) = scene_loader.load(&take.scene_filename, &mut scene) {
+        println!(
+            "Loading take \"{}\": {}",
+            take.scene_filename,
+            err.message()
+        );
+        std::process::exit(1);
+    }
 
-    println!("Loading time {} s", chrono::duration_to_seconds(loading_start.elapsed()));
-    
+    println!(
+        "Loading time {} s",
+        chrono::duration_to_seconds(loading_start.elapsed())
+    );
+
     println!("Rendering...");
 
     let rendering_start = Instant::now();
-    
-        let mut driver = driver::FinalFrame::new(&take);
+    {
+        let mut driver = driver::FinalFrame::new(&thread_pool, &take);
 
-    driver.render(&scene, &mut take.view, &mut take.exporters);
+        driver.render(&scene, &mut take.view, &mut take.exporters);
+    }
+    thread_pool.wait_all();
+    println!(
+        "Total render time {} s",
+        chrono::duration_to_seconds(rendering_start.elapsed())
+    );
 
-    println!("Total render time {} s", chrono::duration_to_seconds(rendering_start.elapsed()));
-
-    println!("Total elapsed time {} s", chrono::duration_to_seconds(total_start.elapsed()));
+    println!(
+        "Total elapsed time {} s",
+        chrono::duration_to_seconds(total_start.elapsed())
+    );
 }
