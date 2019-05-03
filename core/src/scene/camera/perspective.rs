@@ -54,8 +54,6 @@ impl Camera for Perspective {
         self.left_top = left_top;
         self.d_x = (right_top - left_top) / fr.v[0];
         self.d_y = (left_bottom - left_top) / fr.v[1];
-
-        println!("fov {}", self.fov);
     }
 
     fn generate_ray(&self, sample: &CameraSample) -> Option<Ray> {

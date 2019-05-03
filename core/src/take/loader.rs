@@ -77,8 +77,6 @@ impl Loader {
 
         let (type_name, type_value) = camera_value.iter().next().unwrap();
 
-        println!("{}", type_name);
-
         let type_value = type_value.as_object()?;
 
         let mut transformation = Transformation::identity();
