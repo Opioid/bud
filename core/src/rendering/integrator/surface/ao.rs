@@ -2,38 +2,43 @@ use super::Integrator;
 use base::math::float4;
 use base::random;
 use rendering::Worker;
+use sampler::{Random, Sampler};
 use scene::prop::Intersection;
-use scene::Ray;
-use sampler::Random;
+use scene::{Ray, Scene};
 
-pub struct Ao<'a> {
-    sampler: Random<'a>,
-    scrambler: Random<'a>,
+pub struct Ao {
+    sampler: Random,
+    scrambler: Random,
 }
 
-impl<'a> Ao<'a> {
-    pub fn new(rng: &mut random::Generator) -> Ao {
-        Ao { sampler: Random::new(rng), scrambler: Random::new(rng) }
+impl Ao {
+    pub fn new() -> Ao {
+        Ao {
+            sampler: Random::new(),
+            scrambler: Random::new(),
+        }
     }
 }
 
-impl<'a> Integrator for Ao<'a> {
+impl Integrator for Ao {
     fn li(
         &mut self,
+        scene: &Scene,
         ray: &mut Ray,
         intersection: &mut Intersection,
         worker: &mut Worker,
     ) -> float4 {
-        
-        
+        let r0 = self.sampler.generate_sample_2D(worker.rng());
+        let r1 = self.scrambler.generate_sample_2D(worker.rng());
+
         return float4::new(1.0, 1.0, 1.0, 1.0);
     }
 }
 
 pub struct AoFactory {}
 
-impl<'a> AoFactory {
-    pub fn create(rng: &'a mut random::Generator) -> Box<dyn Integrator + 'a> {
-        Box::new(Ao::new(rng))
+impl AoFactory {
+    pub fn create() -> Box<dyn Integrator> {
+        Box::new(Ao::new())
     }
 }

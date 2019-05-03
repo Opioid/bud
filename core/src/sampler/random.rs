@@ -1,19 +1,17 @@
-use super::{Sampler, SamplerBase};
+use super::Sampler;
 use base::math::float2;
 use base::random;
 
-pub struct Random<'a> {
-    base: SamplerBase<'a>,
+pub struct Random {}
+
+impl Random {
+    pub fn new() -> Random {
+        Random {}
+    }
 }
 
-impl<'a> Random<'a> {
- pub fn new(rng: &mut random::Generator) -> Random {
-        Random { base: SamplerBase::new(rng) }
- }
-}
-
-impl<'a> Sampler for Random<'a> {
-    fn generate_sample_2D(&mut self) -> float2 {
-        float2::new(self.base.rng.random_float(), self.base.rng.random_float())
+impl Sampler for Random {
+    fn generate_sample_2D(&mut self, rng: &mut random::Generator) -> float2 {
+        float2::new(rng.random_float(), rng.random_float())
     }
 }

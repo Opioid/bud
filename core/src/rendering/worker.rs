@@ -1,28 +1,29 @@
+use base::random;
 use scene::material::Material;
 use scene::prop::Intersection;
 use scene::{Ray, Scene};
-use base::random;
 
-pub struct Worker<'a> {
+pub struct Worker {
     rng: random::Generator,
-    scene: &'a Scene<'a>,
 }
 
-impl<'a, 'b> Worker<'a> {
-    pub fn new(scene: &'a Scene) -> Worker<'a> {
-        Worker { rng: random::Generator::new(0, 0), scene }
+impl Worker {
+    pub fn new() -> Worker {
+        Worker {
+            rng: random::Generator::new(0, 0),
+        }
     }
 
-    pub fn intersect(&'b self, ray: &mut Ray, intersection: &mut Intersection) -> bool {
-        self.scene.intersect(ray, intersection)
+    pub fn intersect(&self, scene: &Scene, ray: &mut Ray, intersection: &mut Intersection) -> bool {
+        scene.intersect(ray, intersection)
     }
 
-    pub fn masked_visibility(&'b self, ray: &Ray) -> Option<f32> {
-        self.scene.visibility(ray)
+    pub fn masked_visibility(&self, scene: &Scene, ray: &Ray) -> Option<f32> {
+        scene.visibility(ray)
     }
 
-    pub fn material(&self, prop: u32, part: u32) -> &'a dyn Material {
-        self.scene.material(prop, part)
+    pub fn material<'a>(&self, scene: &'a Scene, prop: u32, part: u32) -> &'a dyn Material {
+        scene.material(prop, part)
     }
 
     pub fn rng(&mut self) -> &mut random::Generator {

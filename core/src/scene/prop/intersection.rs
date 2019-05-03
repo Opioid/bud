@@ -1,6 +1,7 @@
 use rendering::Worker;
 use scene::material::Material;
 use scene::shape;
+use scene::Scene;
 
 pub struct Intersection {
     pub prop: u32,
@@ -16,7 +17,7 @@ impl Intersection {
         }
     }
 
-    pub fn material<'a>(&self, worker: &'a Worker) -> &'a dyn Material {
-        worker.material(self.prop, self.geo.part)
+    pub fn material<'a>(&self, scene: &'a Scene, worker: &'a Worker) -> &'a dyn Material {
+        worker.material(scene, self.prop, self.geo.part)
     }
 }

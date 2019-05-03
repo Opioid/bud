@@ -9,27 +9,30 @@ use scene::{Ray, Scene};
 use take::View;
 
 pub struct FinalFrame<'a> {
-    base: DriverBase<'a>,
+    base: DriverBase,
 
-    integrators: Vec<Box<dyn Integrator>>,
+    integrators: Vec<Box<dyn Integrator + 'a>>,
 }
 
-impl<'a, 'b> FinalFrame<'a> {
-    pub fn new(dimensions: int2, scene: &'a Scene) -> FinalFrame<'a> {
+impl<'a> FinalFrame<'a> {
+    pub fn new(dimensions: int2) -> FinalFrame<'a> {
         let mut ff = FinalFrame {
-            base: DriverBase::new(dimensions, scene),
+            base: DriverBase::new(dimensions),
             integrators: Vec::new(),
         };
 
-     //   ff.integrators.push(AoFactory::create(ff.base.worker.rng()));
+        ff.integrators.push(AoFactory::create());
 
-AoFactory::create(ff.base.worker.rng());
-        
         ff
     }
 
-    pub fn render(&mut self, view: &mut View, exporters: &mut [Box<dyn exporting::Sink>]) {
-        self.render_frame(view);
+    pub fn render(
+        &mut self,
+        scene: &Scene,
+        view: &mut View,
+        exporters: &mut [Box<dyn exporting::Sink>],
+    ) {
+        self.render_frame(scene, view);
 
         let sensor = view.camera.sensor_mut();
 
@@ -40,7 +43,7 @@ AoFactory::create(ff.base.worker.rng());
         }
     }
 
-    fn render_frame(&mut self, view: &mut View) {
+    fn render_frame(&mut self, scene: &Scene, view: &mut View) {
         let camera = &mut view.camera;
 
         camera.update();
@@ -54,7 +57,7 @@ AoFactory::create(ff.base.worker.rng());
                 let ray = camera.generate_ray(&sample);
 
                 if let Some(mut ray) = ray {
-                    let color = self.li(&mut ray);
+                    let color = self.li(scene, &mut ray);
 
                     camera.sensor_mut().add_sample(&sample, &color);
                 }
@@ -62,15 +65,13 @@ AoFactory::create(ff.base.worker.rng());
         }
     }
 
-    fn li(&mut self, ray: &mut Ray) -> float4 {
+    fn li(&mut self, scene: &Scene, ray: &mut Ray) -> float4 {
         let mut intersection = Intersection::new();
 
-        let hit = self.base.worker.intersect(ray, &mut intersection);
+        let hit = self.base.worker.intersect(scene, ray, &mut intersection);
 
         if hit {
-            return self
-                .integrators[0]
-                .li(ray, &mut intersection, &mut self.base.worker);
+            return self.integrators[0].li(scene, ray, &mut intersection, &mut self.base.worker);
         }
 
         float4::identity()

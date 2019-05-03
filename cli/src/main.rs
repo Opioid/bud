@@ -64,9 +64,9 @@ fn main() {
             std::process::exit(1);
         }
 
-        let mut driver = driver::FinalFrame::new(take.view.camera.sensor_dimensions(), &scene);
+        let mut driver = driver::FinalFrame::new(take.view.camera.sensor_dimensions());
 
-        driver.render(&mut take.view, &mut take.exporters);
+        driver.render(&scene, &mut take.view, &mut take.exporters);
     }
 
     let mut rng = random::Generator::new(0, 0);

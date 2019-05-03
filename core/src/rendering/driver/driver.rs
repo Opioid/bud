@@ -5,17 +5,15 @@ use rendering::Worker;
 use scene::Scene;
 use take::View;
 
-pub struct DriverBase<'a> {
-    pub scene: &'a Scene<'a>,
-    pub worker: Worker<'a>,
+pub struct DriverBase {
+    pub worker: Worker,
     pub target: Float3,
 }
 
-impl<'a> DriverBase<'a> {
-    pub fn new(dimensions: int2, scene: &'a Scene) -> DriverBase<'a> {
+impl DriverBase {
+    pub fn new(dimensions: int2) -> DriverBase {
         DriverBase {
-            scene,
-            worker: Worker::new(scene),
+            worker: Worker::new(),
             target: Float3::new(dimensions),
         }
     }
