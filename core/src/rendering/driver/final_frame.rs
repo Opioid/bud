@@ -21,7 +21,9 @@ impl<'a> FinalFrame<'a> {
             integrators: Vec::new(),
         };
 
-        ff.integrators.push(AoFactory::create());
+        let factory = AoFactory::new(16, 10.0);
+
+        ff.integrators.push(factory.create());
 
         ff
     }

@@ -1,9 +1,16 @@
 use base::math::float3;
 
 pub struct Intersection {
+    // position in world space or texture space
     pub p: float3,
 
+    // geometry normal in world space
     pub geo_n: float3,
+
+    // interpolated tangent frame in world space
+    pub t: float3,
+    pub b: float3,
+    pub n: float3,
 
     pub part: u32,
 }
@@ -13,7 +20,18 @@ impl Intersection {
         Intersection {
             p: float3::identity(),
             geo_n: float3::identity(),
+            t: float3::identity(),
+            b: float3::identity(),
+            n: float3::identity(),
             part: 0,
         }
+    }
+
+    pub fn tangent_to_world(&self, v: &float3) -> float3 {
+        float3::new(
+            v.v[0] * self.t.v[0] + v.v[1] * self.b.v[0] + v.v[2] * self.n.v[0],
+            v.v[0] * self.t.v[1] + v.v[1] * self.b.v[1] + v.v[2] * self.n.v[1],
+            v.v[0] * self.t.v[2] + v.v[1] * self.b.v[2] + v.v[2] * self.n.v[2],
+        )
     }
 }

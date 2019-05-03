@@ -9,4 +9,6 @@ pub trait Shape {
         transformation: &ComposedTransformation,
         intersection: &mut Intersection,
     ) -> bool;
+
+    fn intersect_p(&self, ray: &Ray, transformation: &ComposedTransformation) -> bool;
 }

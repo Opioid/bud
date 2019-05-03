@@ -32,7 +32,13 @@ impl<'a> Scene<'a> {
     }
 
     pub fn visibility(&self, ray: &Ray) -> Option<f32> {
-        None
+        for p in self.props.iter() {
+            if p.intersect_p(ray) {
+                return None;
+            }
+        }
+
+        Some(1.0)
     }
 
     pub fn material(&self, prop: u32, part: u32) -> &dyn Material {

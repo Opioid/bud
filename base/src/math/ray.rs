@@ -22,4 +22,8 @@ impl Ray {
     pub fn point(&self, t: f32) -> float3 {
         return self.org + t * self.dir;
     }
+
+    pub fn set_direction(&mut self, dir: float3) {
+        self.dir = dir;
+    }
 }

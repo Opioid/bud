@@ -30,6 +30,16 @@ impl float3 {
     pub fn normalized(&self) -> float3 {
         *self / self.length()
     }
+
+    pub fn cross(&self, b: &float3) -> float3 {
+        float3 {
+            v: [
+                self.v[1] * b.v[2] - self.v[2] * b.v[1],
+                self.v[2] * b.v[0] - self.v[0] * b.v[2],
+                self.v[0] * b.v[1] - self.v[1] * b.v[0],
+            ],
+        }
+    }
 }
 
 impl ops::Add<float3> for float3 {
@@ -56,6 +66,16 @@ impl ops::Sub<float3> for float3 {
                 self.v[1] - other.v[1],
                 self.v[2] - other.v[2],
             ],
+        }
+    }
+}
+
+impl ops::Neg for float3 {
+    type Output = float3;
+
+    fn neg(self) -> float3 {
+        float3 {
+            v: [-self.v[0], -self.v[1], -self.v[2]],
         }
     }
 }

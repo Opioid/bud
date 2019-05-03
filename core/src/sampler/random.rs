@@ -11,7 +11,7 @@ impl Random {
 }
 
 impl Sampler for Random {
-    fn generate_sample_2D(&mut self, rng: &mut random::Generator) -> float2 {
+    fn generate_sample_2d(&mut self, rng: &mut random::Generator) -> float2 {
         float2::new(rng.random_float(), rng.random_float())
     }
 }

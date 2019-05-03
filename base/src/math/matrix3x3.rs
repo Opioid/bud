@@ -64,6 +64,14 @@ impl float3x3 {
             v.v[0] * self.r[0].v[2] + v.v[1] * self.r[1].v[2] + v.v[2] * self.r[2].v[2],
         )
     }
+
+    pub fn transform_vector_transposed(&self, v: &float3) -> float3 {
+        float3::new(
+            v.v[0] * self.r[0].v[0] + v.v[1] * self.r[0].v[1] + v.v[2] * self.r[0].v[2],
+            v.v[0] * self.r[1].v[0] + v.v[1] * self.r[1].v[1] + v.v[2] * self.r[1].v[2],
+            v.v[0] * self.r[2].v[0] + v.v[1] * self.r[2].v[1] + v.v[2] * self.r[2].v[2],
+        )
+    }
 }
 
 impl ops::Mul<float3x3> for float3x3 {
