@@ -1,6 +1,5 @@
 use super::{Factory, Integrator};
 use base::math::{self, float3, float4};
-use base::random;
 use rendering::Worker;
 use sampler::{GoldenRatio, Random, Sampler};
 use scene::prop::Intersection;
@@ -49,9 +48,9 @@ impl Integrator for Ao {
         let mut result = 0.0;
 
         let mut occlusion_ray = Ray::new(
-            intersection.geo.p,
+            intersection.geo.offset_p(),
             float3::identity(),
-            0.001,
+            0.0,
             self.settings.radius,
             ray.time,
         );

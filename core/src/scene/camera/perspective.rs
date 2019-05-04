@@ -3,7 +3,7 @@ use base::math::{self, float2, float3, int2};
 use json;
 use rendering::sensor::Sensor;
 use sampler::CameraSample;
-use scene::Ray;
+use scene::{self, Ray};
 
 pub struct Perspective {
     pub base: CameraBase,
@@ -70,7 +70,7 @@ impl Camera for Perspective {
         let direction = direction.normalized();
         let direction_w = transformation.object_to_world.transform_vector(&direction);
 
-        Some(Ray::new(origin_w, direction_w, 0.0, 1000.0, 0))
+        Some(Ray::new(origin_w, direction_w, 0.0, scene::RAY_MAX_T, 0))
     }
 
     fn sensor_mut(&mut self) -> &mut dyn Sensor {

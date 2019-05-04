@@ -1,4 +1,5 @@
 use base::math::float3;
+use scene;
 
 pub struct Intersection {
     // position in world space or texture space
@@ -33,5 +34,9 @@ impl Intersection {
             v.v[0] * self.t.v[1] + v.v[1] * self.b.v[1] + v.v[2] * self.n.v[1],
             v.v[0] * self.t.v[2] + v.v[1] * self.b.v[2] + v.v[2] * self.n.v[2],
         )
+    }
+
+    pub fn offset_p(&self) -> float3 {
+        scene::offset_ray(&self.p, &self.geo_n)
     }
 }

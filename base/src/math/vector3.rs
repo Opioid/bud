@@ -1,44 +1,63 @@
+use num::Zero;
 use std::ops;
 
 #[derive(Copy, Clone, Debug)]
 #[allow(non_camel_case_types)]
-pub struct float3 {
-    pub v: [f32; 3],
+pub struct vec3<T> {
+    pub v: [T; 3],
 }
 
-impl float3 {
-    pub fn identity() -> float3 {
-        float3 { v: [0.0, 0.0, 0.0] }
+impl<T: Copy + Zero + ops::Sub<Output = T> + ops::Mul<Output = T> + 'static> vec3<T> {
+    pub fn identity() -> vec3<T> {
+        vec3 {
+            v: [num::zero(), num::zero(), num::zero()],
+        }
     }
 
-    pub fn from_scalar(s: f32) -> float3 {
-        float3 { v: [s, s, s] }
+    pub fn from_scalar(s: T) -> vec3<T> {
+        vec3 { v: [s, s, s] }
     }
 
-    pub fn new(x: f32, y: f32, z: f32) -> float3 {
-        float3 { v: [x, y, z] }
+    pub fn new(x: T, y: T, z: T) -> vec3<T> {
+        vec3 { v: [x, y, z] }
     }
 
-    pub fn dot(&self, other: &float3) -> f32 {
+    pub fn from<U: num::cast::AsPrimitive<T>>(other: vec3<U>) -> vec3<T> {
+        vec3 {
+            v: [other.v[0].as_(), other.v[1].as_(), other.v[2].as_()],
+        }
+    }
+
+    pub fn dot(&self, other: &vec3<T>) -> T {
         self.v[0] * other.v[0] + self.v[1] * other.v[1] + self.v[2] * other.v[2]
     }
 
-    pub fn length(&self) -> f32 {
-        self.dot(self).sqrt()
-    }
+    // pub fn length(&self) -> T {
+    //     self.dot(self).sqrt()
+    // }
 
-    pub fn normalized(&self) -> float3 {
-        *self / self.length()
-    }
+    // pub fn normalized(&self) -> vec3<T> {
+    //     *self / self.length()
+    // }
 
-    pub fn cross(&self, b: &float3) -> float3 {
-        float3 {
+    pub fn cross(&self, b: &vec3<T>) -> vec3<T> {
+        vec3 {
             v: [
                 self.v[1] * b.v[2] - self.v[2] * b.v[1],
                 self.v[2] * b.v[0] - self.v[0] * b.v[2],
                 self.v[0] * b.v[1] - self.v[1] * b.v[0],
             ],
         }
+    }
+}
+
+impl vec3<f32> {
+    pub fn length(&self) -> f32 {
+        self.dot(self).sqrt()
+    }
+
+    pub fn normalized(&self) -> vec3<f32> {
+        *self / self.length()
     }
 }
 
@@ -80,11 +99,11 @@ impl ops::Neg for float3 {
     }
 }
 
-impl ops::Mul<float3> for f32 {
-    type Output = float3;
+impl ops::Mul<vec3<f32>> for f32 {
+    type Output = vec3<f32>;
 
-    fn mul(self, v: float3) -> float3 {
-        float3 {
+    fn mul(self, v: vec3<f32>) -> vec3<f32> {
+        vec3 {
             v: [self * v.v[0], self * v.v[1], self * v.v[2]],
         }
     }
@@ -99,3 +118,9 @@ impl ops::Div<f32> for float3 {
         }
     }
 }
+
+#[allow(non_camel_case_types)]
+pub type int3 = vec3<i32>;
+
+#[allow(non_camel_case_types)]
+pub type float3 = vec3<f32>;
