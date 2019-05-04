@@ -24,8 +24,10 @@ impl<'a> FinalFrame<'a> {
             integrators: Vec::new(),
         };
 
-        ff.integrators
-            .push(take.surface_integrator_factory.create());
+        let mut i = take.surface_integrator_factory.create();
+        i.prepare(1);
+
+        ff.integrators.push(i);
 
         ff
     }
@@ -56,6 +58,8 @@ impl<'a> FinalFrame<'a> {
 
         for y in 0..d.v[1] {
             for x in 0..d.v[0] {
+                self.integrators[0].start_pixel();
+
                 let sample = CameraSample::new(int2::new(x, y));
 
                 let ray = camera.generate_ray(&sample);

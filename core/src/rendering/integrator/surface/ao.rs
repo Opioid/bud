@@ -2,7 +2,7 @@ use super::{Factory, Integrator};
 use base::math::{self, float3, float4};
 use base::random;
 use rendering::Worker;
-use sampler::{Random, Sampler};
+use sampler::{GoldenRatio, Random, Sampler};
 use scene::prop::Intersection;
 use scene::{Ray, Scene};
 
@@ -15,19 +15,28 @@ struct Settings {
 pub struct Ao {
     settings: Settings,
 
-    sampler: Random,
+    sampler: GoldenRatio,
 }
 
 impl Ao {
     fn new(settings: Settings) -> Ao {
         Ao {
             settings,
-            sampler: Random::new(),
+            sampler: GoldenRatio::new(),
         }
     }
 }
 
 impl Integrator for Ao {
+    fn prepare(&mut self, num_samples_per_pixel: u32) {
+        self.sampler
+            .resize(num_samples_per_pixel, self.settings.num_samples, 1, 1);
+    }
+
+    fn start_pixel(&mut self) {
+        self.sampler.start_pixel();
+    }
+
     fn li(
         &mut self,
         scene: &Scene,
@@ -48,7 +57,7 @@ impl Integrator for Ao {
         );
 
         for _ in 0..self.settings.num_samples {
-            let uv = self.sampler.generate_sample_2d(worker.rng());
+            let uv = self.sampler.generate_sample_2d(worker.rng(), 0);
 
             let hs = math::sample_hemisphere_cosine(uv);
 

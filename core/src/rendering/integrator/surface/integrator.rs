@@ -4,6 +4,10 @@ use scene::prop::Intersection;
 use scene::{Ray, Scene};
 
 pub trait Integrator {
+    fn prepare(&mut self, num_samples_per_pixel: u32);
+
+    fn start_pixel(&mut self);
+
     fn li(
         &mut self,
         scene: &Scene,
