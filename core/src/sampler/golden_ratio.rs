@@ -23,7 +23,10 @@ impl GoldenRatio {
         let begin = (dimension * self.base.num_samples) as usize;
         let end = begin + self.base.num_samples as usize;
 
-        math::golden_ratio_2d(&mut self.samples_2d[begin..end], r);
+        let slice = &mut self.samples_2d[begin..end];
+
+        math::golden_ratio_2d(slice, r);
+        random::biased_shuffle(slice, rng);
     }
 }
 
