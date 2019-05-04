@@ -27,15 +27,19 @@ impl Sensor for Unfiltered {
     }
 
     fn resolve(&self, target: &mut Float3) {
-        for (i, color) in self.pixels.iter().enumerate() {
-            target.set_by_index(i as i32, color.xyz());
+        for (i, pixel) in self.pixels.iter().enumerate() {
+            let color = pixel.xyz() / pixel.v[3];
+            target.set_by_index(i as i32, color);
         }
     }
 
-    fn add_sample(&mut self, sample: &CameraSample, color: &float4) {
+    fn add_sample(&mut self, sample: &CameraSample, color: float4) {
         let i = sample.pixel.v[1] * self.base.dimensions.v[0] + sample.pixel.v[0];
+
+        let value = float4::from_3(color.xyz(), 1.0);
+
         unsafe {
-            *self.pixels.get_unchecked_mut(i as usize) = *color;
+            *self.pixels.get_unchecked_mut(i as usize) += value;
         }
     }
 }

@@ -21,5 +21,5 @@ pub trait Sensor {
 
     fn resolve(&self, target: &mut Float3);
 
-    fn add_sample(&mut self, sample: &CameraSample, color: &float4);
+    fn add_sample(&mut self, sample: &CameraSample, color: float4);
 }

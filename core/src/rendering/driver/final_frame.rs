@@ -4,7 +4,7 @@ use base::random;
 use base::thread;
 use exporting;
 use rendering::integrator::surface::Integrator;
-use sampler::CameraSample;
+use sampler::{CameraSample, Sampler};
 use scene::prop::Intersection;
 use scene::{Ray, Scene};
 use take::{Take, View};
@@ -13,6 +13,7 @@ pub struct FinalFrame<'a> {
     base: DriverBase<'a>,
 
     integrators: Vec<Box<dyn Integrator>>,
+    samplers: Vec<Box<dyn Sampler>>,
 }
 
 impl<'a> FinalFrame<'a> {
@@ -22,12 +23,16 @@ impl<'a> FinalFrame<'a> {
         let mut ff = FinalFrame {
             base: DriverBase::new(thread_pool, dimensions),
             integrators: Vec::new(),
+            samplers: Vec::new(),
         };
 
-        let mut i = take.surface_integrator_factory.create();
-        i.prepare(1);
+        let mut sif = take.surface_integrator_factory.create();
+        sif.prepare(take.view.num_samples_per_pixel);
+        ff.integrators.push(sif);
 
-        ff.integrators.push(i);
+        let mut sf = take.sampler_factory.create();
+        sf.resize(take.view.num_samples_per_pixel, 1, 2, 1);
+        ff.samplers.push(sf);
 
         ff
     }
@@ -58,16 +63,23 @@ impl<'a> FinalFrame<'a> {
 
         for y in 0..d.v[1] {
             for x in 0..d.v[0] {
+                self.samplers[0].start_pixel();
                 self.integrators[0].start_pixel();
 
-                let sample = CameraSample::new(int2::new(x, y));
+                for s in 0..view.num_samples_per_pixel {
+                    let sample = self.samplers[0].generate_camera_sample(
+                        self.base.worker.rng(),
+                        int2::new(x, y),
+                        s,
+                    );
 
-                let ray = camera.generate_ray(&sample);
+                    let ray = camera.generate_ray(&sample);
 
-                if let Some(mut ray) = ray {
-                    let color = self.li(scene, &mut ray);
+                    if let Some(mut ray) = ray {
+                        let color = self.li(scene, &mut ray);
 
-                    camera.sensor_mut().add_sample(&sample, &color);
+                        camera.sensor_mut().add_sample(&sample, color);
+                    }
                 }
             }
         }

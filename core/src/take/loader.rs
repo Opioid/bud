@@ -6,8 +6,12 @@ use base::math::{int2, Transformation};
 use exporting;
 use image;
 use json;
-use rendering::integrator::surface::{AoFactory, Factory};
+use rendering::integrator::surface::AoFactory;
+use rendering::integrator::surface::Factory as SurfaceFactory;
 use rendering::sensor::{Sensor, Unfiltered};
+use sampler::Factory as SamplerFactory;
+use sampler::GoldenRatioFactory;
+use sampler::RandomFactory;
 use scene::camera::{Camera, CameraBase, Perspective};
 use take::{Take, View};
 
@@ -27,6 +31,8 @@ impl Loader {
         let mut num_frames = 1u32;
         let mut scene_filename = String::new();
         let mut surface_factory = None;
+        let mut num_samples_per_pixel = 1u32;
+        let mut sampler_factory = None;
 
         for (name, value) in root.iter() {
             match name.as_ref() {
@@ -35,6 +41,10 @@ impl Loader {
                 "start_frame" => start_frame = value.as_u64().unwrap() as u32,
                 "num_frames" => num_frames = value.as_u64().unwrap() as u32,
                 "integrator" => Loader::load_integrator_factories(value, &mut surface_factory),
+                "sampler" => {
+                    sampler_factory =
+                        Loader::load_sampler_factory(value, &mut num_samples_per_pixel)
+                }
                 "scene" => scene_filename = value.as_str().unwrap().to_string(),
                 _ => (),
             }
@@ -51,8 +61,17 @@ impl Loader {
             surface_factory = Some(Box::new(AoFactory::new(num_samples, radius)));
         }
 
-        let mut take = Take::new(camera.unwrap(), surface_factory.unwrap());
+        if sampler_factory.is_none() {
+            sampler_factory = Some(Box::new(RandomFactory {}));
+        }
 
+        let mut take = Take::new(
+            camera.unwrap(),
+            surface_factory.unwrap(),
+            sampler_factory.unwrap(),
+        );
+
+        take.view.num_samples_per_pixel = num_samples_per_pixel;
         take.view.start_frame = start_frame;
         take.view.num_frames = num_frames;
         take.scene_filename = scene_filename;
@@ -170,7 +189,7 @@ impl Loader {
 
     fn load_integrator_factories(
         integrator_value: &Value,
-        surface_factory: &mut Option<Box<dyn Factory>>,
+        surface_factory: &mut Option<Box<dyn SurfaceFactory>>,
     ) {
         let integrator_value = match integrator_value {
             Value::Object(integrator_value) => integrator_value,
@@ -185,7 +204,9 @@ impl Loader {
         }
     }
 
-    fn load_surface_integrator_factory(integrator_value: &Value) -> Option<Box<dyn Factory>> {
+    fn load_surface_integrator_factory(
+        integrator_value: &Value,
+    ) -> Option<Box<dyn SurfaceFactory>> {
         let integrator_value = match integrator_value {
             Value::Object(integrator_value) => integrator_value,
             _ => return None,
@@ -198,6 +219,28 @@ impl Loader {
                     let radius = json::read_float_from(value, "radius", 1.0);
                     return Some(Box::new(AoFactory::new(num_samples, radius)));
                 }
+                _ => (),
+            }
+        }
+
+        None
+    }
+
+    fn load_sampler_factory(
+        sampler_value: &Value,
+        num_samples_per_pixel: &mut u32,
+    ) -> Option<Box<dyn SamplerFactory>> {
+        let sampler_value = match sampler_value {
+            Value::Object(sampler_value) => sampler_value,
+            _ => return None,
+        };
+
+        for (name, value) in sampler_value.iter() {
+            *num_samples_per_pixel = json::read_uint_from(value, "samples_per_pixel", 1);
+
+            match name.as_ref() {
+                "Golden_ratio" => return Some(Box::new(GoldenRatioFactory {})),
+                "Random" => return Some(Box::new(RandomFactory {})),
                 _ => (),
             }
         }

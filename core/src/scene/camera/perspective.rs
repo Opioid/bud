@@ -65,10 +65,10 @@ impl Camera for Perspective {
 
         let transformation = self.base.entity.transformation_at(0);
 
-        let origin_w = transformation.object_to_world.transform_point(&origin);
+        let origin_w = transformation.object_to_world.transform_point(origin);
 
         let direction = direction.normalized();
-        let direction_w = transformation.object_to_world.transform_vector(&direction);
+        let direction_w = transformation.object_to_world.transform_vector(direction);
 
         Some(Ray::new(origin_w, direction_w, 0.0, scene::RAY_MAX_T, 0))
     }

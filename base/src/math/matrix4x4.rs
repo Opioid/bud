@@ -7,6 +7,7 @@ pub struct float4x4 {
 }
 
 impl float4x4 {
+    #[inline]
     pub fn identity() -> float4x4 {
         float4x4 {
             r: [
@@ -18,7 +19,8 @@ impl float4x4 {
         }
     }
 
-    pub fn compose(scale: &float3, origin: &float3) -> float4x4 {
+    #[inline]
+    pub fn compose(scale: float3, origin: float3) -> float4x4 {
         float4x4 {
             r: [
                 float4::new(1.0 * scale.v[0], 0.0 * scale.v[0], 0.0 * scale.v[0], 0.0),
@@ -29,7 +31,8 @@ impl float4x4 {
         }
     }
 
-    pub fn transform_vector(&self, v: &float3) -> float3 {
+    #[inline]
+    pub fn transform_vector(self, v: float3) -> float3 {
         float3::new(
             v.v[0] * self.r[0].v[0] + v.v[1] * self.r[1].v[0] + v.v[2] * self.r[2].v[0],
             v.v[0] * self.r[0].v[1] + v.v[1] * self.r[1].v[1] + v.v[2] * self.r[2].v[1],
@@ -37,7 +40,8 @@ impl float4x4 {
         )
     }
 
-    pub fn transform_point(&self, v: &float3) -> float3 {
+    #[inline]
+    pub fn transform_point(self, v: float3) -> float3 {
         float3::new(
             v.v[0] * self.r[0].v[0]
                 + v.v[1] * self.r[1].v[0]

@@ -19,7 +19,9 @@ impl Float3 {
     }
 
     pub fn set_by_index(&mut self, i: i32, v: float3) {
-        self.data[i as usize] = v;
+        unsafe {
+            *self.data.get_unchecked_mut(i as usize) = v;
+        }
     }
 
     pub fn set(&mut self, x: i32, y: i32, v: float3) {

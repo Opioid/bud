@@ -4,6 +4,6 @@ mod random;
 mod sampler;
 
 pub use self::camera_sample::CameraSample;
-pub use self::golden_ratio::GoldenRatio;
-pub use self::random::Random;
-pub use self::sampler::{Sampler, SamplerBase};
+pub use self::golden_ratio::*;
+pub use self::random::*;
+pub use self::sampler::{Factory, Sampler, SamplerBase};

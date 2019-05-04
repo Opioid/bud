@@ -6,6 +6,10 @@ use scene::Ray;
 pub struct Plane {}
 
 impl Shape for Plane {
+    fn is_finite(&self) -> bool {
+        false
+    }
+
     fn intersect(
         &self,
         ray: &mut Ray,
@@ -14,9 +18,9 @@ impl Shape for Plane {
     ) -> bool {
         let normal = transformation.rotation.r[2];
 
-        let d = normal.dot(&transformation.position);
-        let denom = -normal.dot(&ray.ray.dir);
-        let numer = normal.dot(&ray.ray.org) - d;
+        let d = normal.dot(transformation.position);
+        let denom = -normal.dot(ray.ray.dir);
+        let numer = normal.dot(ray.ray.org) - d;
         let hit_t = numer / denom;
 
         if hit_t > ray.ray.min_t && hit_t < ray.ray.max_t {
@@ -40,9 +44,9 @@ impl Shape for Plane {
     fn intersect_p(&self, ray: &Ray, transformation: &ComposedTransformation) -> bool {
         let normal = &transformation.rotation.r[2];
 
-        let d = normal.dot(&transformation.position);
-        let denom = -normal.dot(&ray.ray.dir);
-        let numer = normal.dot(&ray.ray.org) - d;
+        let d = normal.dot(transformation.position);
+        let denom = -normal.dot(ray.ray.dir);
+        let numer = normal.dot(ray.ray.org) - d;
         let hit_t = numer / denom;
 
         if hit_t > ray.ray.min_t && hit_t < ray.ray.max_t {

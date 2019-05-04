@@ -4,24 +4,41 @@ use super::shape::Shape;
 use super::Ray;
 
 pub struct Scene<'a> {
-    props: Vec<Box<Prop<'a>>>,
+    finite_props: Vec<Box<Prop<'a>>>,
+    infinite_props: Vec<Box<Prop<'a>>>,
 }
 
 impl<'a> Scene<'a> {
     pub fn new() -> Scene<'a> {
-        Scene { props: Vec::new() }
+        Scene {
+            finite_props: Vec::new(),
+            infinite_props: Vec::new(),
+        }
     }
 
     pub fn create_prop(&mut self, shape: &'a dyn Shape) -> &mut Prop<'a> {
-        self.props.push(Box::new(Prop::new(shape)));
+        let mut prop = Box::new(Prop::new(shape));
 
-        self.props.last_mut().unwrap()
+        if shape.is_finite() {
+            self.finite_props.push(prop);
+            self.finite_props.last_mut().unwrap()
+        } else {
+            self.infinite_props.push(prop);
+            self.infinite_props.last_mut().unwrap()
+        }
     }
 
     pub fn intersect(&self, ray: &mut Ray, intersection: &mut Intersection) -> bool {
         let mut hit = false;
 
-        for (i, p) in self.props.iter().enumerate() {
+        for (i, p) in self.finite_props.iter().enumerate() {
+            if p.intersect(ray, &mut intersection.geo) {
+                intersection.prop = i as u32;
+                hit = true;
+            }
+        }
+
+        for (i, p) in self.infinite_props.iter().enumerate() {
             if p.intersect(ray, &mut intersection.geo) {
                 intersection.prop = i as u32;
                 hit = true;
@@ -32,7 +49,13 @@ impl<'a> Scene<'a> {
     }
 
     pub fn visibility(&self, ray: &Ray) -> Option<f32> {
-        for p in self.props.iter() {
+        for p in self.finite_props.iter() {
+            if p.intersect_p(ray) {
+                return None;
+            }
+        }
+
+        for p in self.infinite_props.iter() {
             if p.intersect_p(ray) {
                 return None;
             }
@@ -42,6 +65,10 @@ impl<'a> Scene<'a> {
     }
 
     pub fn material(&self, prop: u32, part: u32) -> &dyn Material {
-        unsafe { self.props.get_unchecked(prop as usize).material(part) }
+        unsafe {
+            self.finite_props
+                .get_unchecked(prop as usize)
+                .material(part)
+        }
     }
 }

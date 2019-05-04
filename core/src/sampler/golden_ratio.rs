@@ -1,5 +1,5 @@
-use super::{Sampler, SamplerBase};
-use base::math::{self, float2};
+use super::{CameraSample, Factory, Sampler, SamplerBase};
+use base::math::{self, float2, int2};
 use base::random;
 
 pub struct GoldenRatio {
@@ -58,6 +58,19 @@ impl Sampler for GoldenRatio {
         self.base.start_pixel();
     }
 
+    fn generate_camera_sample(
+        &mut self,
+        rng: &mut random::Generator,
+        pixel: int2,
+        index: u32,
+    ) -> CameraSample {
+        if 0 == index {
+            self.generate_2d(rng, 0);
+        }
+
+        CameraSample::new(pixel, self.samples_2d[index as usize])
+    }
+
     fn generate_sample_2d(&mut self, rng: &mut random::Generator, dimension: u32) -> float2 {
         let current;
         unsafe {
@@ -74,5 +87,13 @@ impl Sampler for GoldenRatio {
         }
 
         self.samples_2d[(dimension * self.base.num_samples + current) as usize]
+    }
+}
+
+pub struct GoldenRatioFactory {}
+
+impl Factory for GoldenRatioFactory {
+    fn create(&self) -> Box<dyn Sampler> {
+        Box::new(GoldenRatio::new())
     }
 }

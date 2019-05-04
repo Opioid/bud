@@ -1,8 +1,10 @@
 use super::{float3x3, float4};
 
+#[derive(Copy, Clone)]
 pub struct Quaternion(pub float4);
 
 impl Quaternion {
+    #[inline]
     pub fn identity() -> Quaternion {
         Quaternion {
             0: float4 {
@@ -11,6 +13,7 @@ impl Quaternion {
         }
     }
 
+    #[inline]
     pub fn from_matrix(m: &float3x3) -> Quaternion {
         let trace = m.r[0].v[0] + m.r[1].v[1] + m.r[2].v[2];
 
@@ -57,7 +60,8 @@ impl Quaternion {
         }
     }
 
-    pub fn create_matrix3x3(q: &Quaternion) -> float3x3 {
+    #[inline]
+    pub fn create_matrix3x3(q: Quaternion) -> float3x3 {
         let d = q.dot(q);
         let s = 2.0 / d;
 
@@ -100,7 +104,8 @@ impl Quaternion {
         m
     }
 
-    pub fn dot(&self, other: &Quaternion) -> f32 {
+    #[inline]
+    pub fn dot(self, other: Quaternion) -> f32 {
         self.0.v[0] * other.0.v[0]
             + self.0.v[1] * other.0.v[1]
             + self.0.v[2] * other.0.v[2]

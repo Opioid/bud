@@ -3,6 +3,8 @@ use scene::entity::ComposedTransformation;
 use scene::Ray;
 
 pub trait Shape {
+    fn is_finite(&self) -> bool;
+
     fn intersect(
         &self,
         ray: &mut Ray,

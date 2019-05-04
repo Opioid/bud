@@ -18,7 +18,7 @@ fn intersect(
 
     let xyz = transformation
         .rotation
-        .transform_vector_transposed(&n)
+        .transform_vector_transposed(n)
         .normalized();
 
     let phi = -xyz.v[0].atan2(xyz.v[2]) + math::PI;
@@ -33,11 +33,15 @@ fn intersect(
 
     intersection.geo_n = n;
     intersection.t = t;
-    intersection.b = t.cross(&n);
+    intersection.b = t.cross(n);
     intersection.n = n;
 }
 
 impl Shape for Sphere {
+    fn is_finite(&self) -> bool {
+        true
+    }
+
     fn intersect(
         &self,
         ray: &mut Ray,
@@ -45,12 +49,12 @@ impl Shape for Sphere {
         intersection: &mut Intersection,
     ) -> bool {
         let v = transformation.position - ray.ray.org;
-        let b = ray.ray.dir.dot(&v);
+        let b = ray.ray.dir.dot(v);
 
         let remedy_term = v - b * ray.ray.dir;
 
         let radius = transformation.scale.v[0];
-        let discriminant = radius * radius - remedy_term.dot(&remedy_term);
+        let discriminant = radius * radius - remedy_term.dot(remedy_term);
 
         if discriminant > 0.0 {
             let dist = discriminant.sqrt();
@@ -78,12 +82,12 @@ impl Shape for Sphere {
 
     fn intersect_p(&self, ray: &Ray, transformation: &ComposedTransformation) -> bool {
         let v = transformation.position - ray.ray.org;
-        let b = ray.ray.dir.dot(&v);
+        let b = ray.ray.dir.dot(v);
 
         let remedy_term = v - b * ray.ray.dir;
 
         let radius = transformation.scale.v[0];
-        let discriminant = radius * radius - remedy_term.dot(&remedy_term);
+        let discriminant = radius * radius - remedy_term.dot(remedy_term);
 
         if discriminant > 0.0 {
             let dist = discriminant.sqrt();

@@ -8,16 +8,19 @@ pub struct vec2<T> {
 }
 
 impl<T: Copy + Zero + 'static> vec2<T> {
+    #[inline]
     pub fn identity() -> vec2<T> {
         vec2 {
             v: [num::zero(), num::zero()],
         }
     }
 
+    #[inline]
     pub fn new(x: T, y: T) -> vec2<T> {
         vec2 { v: [x, y] }
     }
 
+    #[inline]
     pub fn from<U: num::cast::AsPrimitive<T>>(other: vec2<U>) -> vec2<T> {
         vec2 {
             v: [other.v[0].as_(), other.v[1].as_()],
@@ -28,6 +31,7 @@ impl<T: Copy + Zero + 'static> vec2<T> {
 impl<T: Copy + ops::Add<Output = T>> ops::Add<vec2<T>> for vec2<T> {
     type Output = vec2<T>;
 
+    #[inline]
     fn add(self, other: vec2<T>) -> vec2<T> {
         vec2 {
             v: [self.v[0] + other.v[0], self.v[1] + other.v[1]],
@@ -38,6 +42,7 @@ impl<T: Copy + ops::Add<Output = T>> ops::Add<vec2<T>> for vec2<T> {
 impl ops::Sub<f32> for vec2<f32> {
     type Output = vec2<f32>;
 
+    #[inline]
     fn sub(self, s: f32) -> vec2<f32> {
         vec2 {
             v: [self.v[0] - s, self.v[1] - s],
@@ -48,6 +53,7 @@ impl ops::Sub<f32> for vec2<f32> {
 impl ops::Mul<vec2<f32>> for f32 {
     type Output = vec2<f32>;
 
+    #[inline]
     fn mul(self, v: vec2<f32>) -> vec2<f32> {
         vec2 {
             v: [self * v.v[0], self * v.v[1]],
