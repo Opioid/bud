@@ -28,7 +28,8 @@ impl Intersection {
         }
     }
 
-    pub fn tangent_to_world(&self, v: &float3) -> float3 {
+    #[inline]
+    pub fn tangent_to_world(&self, v: float3) -> float3 {
         float3::new(
             v.v[0] * self.t.v[0] + v.v[1] * self.b.v[0] + v.v[2] * self.n.v[0],
             v.v[0] * self.t.v[1] + v.v[1] * self.b.v[1] + v.v[2] * self.n.v[1],
@@ -36,7 +37,8 @@ impl Intersection {
         )
     }
 
+    #[inline]
     pub fn offset_p(&self) -> float3 {
-        scene::offset_ray(&self.p, &self.geo_n)
+        scene::offset_ray(self.p, self.geo_n)
     }
 }

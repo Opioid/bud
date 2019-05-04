@@ -60,7 +60,7 @@ impl Integrator for Ao {
 
             let hs = math::sample_hemisphere_cosine(uv);
 
-            let ws = intersection.geo.tangent_to_world(&hs);
+            let ws = intersection.geo.tangent_to_world(hs);
 
             occlusion_ray.ray.set_direction(ws);
 

@@ -6,16 +6,19 @@ const ORIGIN: f32 = 1.0 / 32.0;
 const FLOAT_SCALE: f32 = 1.0 / 65536.0;
 const INT_SCALE: f32 = 256.0;
 
+#[inline]
 fn int_as_float(x: i32) -> f32 {
     unsafe { std::mem::transmute::<i32, f32>(x) }
 }
 
+#[inline]
 fn float_as_int(x: f32) -> i32 {
     unsafe { std::mem::transmute::<f32, i32>(x) }
 }
 
-pub fn offset_ray(p: &float3, n: &float3) -> float3 {
-    let of_i = int3::from(INT_SCALE * *n);
+#[inline]
+pub fn offset_ray(p: float3, n: float3) -> float3 {
+    let of_i = int3::from(INT_SCALE * n);
 
     let p_i = float3::new(
         int_as_float(float_as_int(p.v[0]) + if p.v[0] < 0.0 { -of_i.v[0] } else { of_i.v[0] }),
