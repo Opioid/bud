@@ -1,53 +1,57 @@
 use std::thread;
+use std::sync::mpsc;
+
 //use std::time;
 
-struct Inner {
-    id: u32,
-}
-
-impl Inner {
-    fn program(&self) {
-        // for _ in 0..10 {
-        //     println!("I am thread {}", self.id);
-
-        //     thread::sleep(time::Duration::from_millis(200));
-        // }
-    }
-}
 
 pub struct Pool {
-    threads: Vec<thread::JoinHandle<()>>,
+    workers: Vec<Worker>,
+ //   sender: mpsc::Sender<Job>,
 }
 
 impl Pool {
     pub fn new(num_threads: u32) -> Pool {
-        let mut pp = Pool {
-            threads: Vec::new(),
-        };
+        
+        
+        let mut workers = Vec::with_capacity(num_threads as usize);
 
-        for i in 0..num_threads {
-            let inner = Inner { id: i };
-            pp.threads.push(thread::spawn(move || {
-                inner.program();
-            }));
+        for id in 0..num_threads {
+            workers.push(Worker::new(id));
         }
 
-        pp
+        Pool {
+            workers,
+        }
     }
 
-    pub fn run_parallel() {}
-
-    pub fn wait_all(self) {
-        for t in self.threads {
-            t.join();
+    pub fn run_parallel(&self) {
+        for w in self.workers.iter() {
+            w.sender.send(Job{});
         }
     }
 }
 
-// impl Drop for Pool {
-//     fn drop(&mut self) {
-//         self.wait_all();
+struct Job;
 
-//         println!("Pool::drop()");
-//     }
-// }
+struct Worker {
+    id: u32,
+    sender: mpsc::Sender<Job>,
+    thread: thread::JoinHandle<()>,
+}
+
+impl Worker {
+    fn new(id: u32) -> Worker {
+        let (sender, receiver) = mpsc::channel();
+        
+        let thread = thread::spawn(move || {
+            receiver.recv().unwrap();
+            println!{"Stuff"};
+        });
+
+        Worker {
+            id,
+            sender,
+            thread,
+        }
+    }
+}

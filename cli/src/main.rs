@@ -63,6 +63,8 @@ fn main() {
 
     let take = take::Loader::load(&mut stream.unwrap());
 
+    thread_pool.run_parallel();
+    
     if let Err(err) = take {
         println!("Loading take \"{}\": {}", options.take, err.message());
         std::process::exit(1);
@@ -94,7 +96,9 @@ fn main() {
 
         driver.render(&scene, &mut take.view, &mut take.exporters);
     }
-    thread_pool.wait_all();
+    
+ //   thread_pool.wait_all();
+    
     println!(
         "Total render time {} s",
         chrono::duration_to_seconds(rendering_start.elapsed())
