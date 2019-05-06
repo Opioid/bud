@@ -28,6 +28,14 @@ impl Pool {
         for w in self.workers.iter() {
             w.sender.send(Job{});
         }
+
+        self.wait_all();
+    }
+
+    fn wait_all(&self) {
+        for w in self.workers.iter() {
+            w.receiver.recv().unwrap();
+        }
     }
 }
 
@@ -36,21 +44,28 @@ struct Job;
 struct Worker {
     id: u32,
     sender: mpsc::Sender<Job>,
+    receiver: mpsc::Receiver<()>,
     thread: thread::JoinHandle<()>,
 }
 
 impl Worker {
     fn new(id: u32) -> Worker {
-        let (sender, receiver) = mpsc::channel();
+        let (sender, worker_receiver) = mpsc::channel();
+        let (worker_sender, receiver) = mpsc::channel();
         
         let thread = thread::spawn(move || {
-            receiver.recv().unwrap();
-            println!{"Stuff"};
+            loop {
+                worker_receiver.recv().unwrap();
+                println!{"Stuff {}", id};
+
+                worker_sender.send(());
+            }
         });
 
         Worker {
             id,
             sender,
+            receiver,
             thread,
         }
     }

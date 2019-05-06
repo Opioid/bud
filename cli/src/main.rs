@@ -96,7 +96,8 @@ fn main() {
 
         driver.render(&scene, &mut take.view, &mut take.exporters);
     }
-    
+
+    thread_pool.run_parallel();
  //   thread_pool.wait_all();
     
     println!(
