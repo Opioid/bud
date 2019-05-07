@@ -8,10 +8,10 @@ pub struct SensorBase {
 }
 
 impl SensorBase {
-    pub fn new(exposure_factor: f32) -> SensorBase {
+    pub fn new(exposure: f32) -> SensorBase {
         SensorBase {
             dimensions: int2::identity(),
-            exposure_factor,
+            exposure_factor: exposure.exp2(),
         }
     }
 }

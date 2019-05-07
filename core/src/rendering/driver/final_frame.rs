@@ -73,7 +73,7 @@ impl<'a> FinalFrame<'a> {
                         s,
                     );
 
-                    let ray = camera.generate_ray(&sample);
+                    let ray = camera.generate_ray(&sample, 0);
 
                     if let Some(mut ray) = ray {
                         let color = self.li(scene, &mut ray);

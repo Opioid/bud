@@ -2,6 +2,8 @@ use base::math::{float3, int3};
 
 pub const RAY_MAX_T: f32 = 2000000.0;
 
+pub const UNITS_PER_SECOND: u64 = 705600000;
+
 const ORIGIN: f32 = 1.0 / 32.0;
 const FLOAT_SCALE: f32 = 1.0 / 65536.0;
 const INT_SCALE: f32 = 256.0;

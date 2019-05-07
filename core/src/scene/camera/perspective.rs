@@ -82,7 +82,7 @@ impl Camera for Perspective {
         self.d_y = (left_bottom - left_top) / fr.v[1];
     }
 
-    fn generate_ray(&self, sample: &CameraSample) -> Option<Ray> {
+    fn generate_ray(&self, sample: &CameraSample, frame: u32) -> Option<Ray> {
         let coords = float2::from(sample.pixel) + sample.pixel_uv;
 
         let mut direction = self.left_top + coords.v[0] * self.d_x + coords.v[1] * self.d_y;
@@ -110,7 +110,9 @@ impl Camera for Perspective {
         let direction = direction.normalized();
         let direction_w = transformation.object_to_world.transform_vector(direction);
 
-        Some(Ray::new(origin_w, direction_w, 0.0, scene::RAY_MAX_T, 0))
+        let time = self.base.absolute_time(frame, sample.time);
+
+        Some(Ray::new(origin_w, direction_w, 0.0, scene::RAY_MAX_T, time))
     }
 
     fn sensor_mut(&mut self) -> &mut dyn Sensor {

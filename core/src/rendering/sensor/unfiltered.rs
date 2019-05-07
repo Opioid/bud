@@ -9,9 +9,9 @@ pub struct Unfiltered {
 }
 
 impl Unfiltered {
-    pub fn new(exposure_factor: f32) -> Unfiltered {
+    pub fn new(exposure: f32) -> Unfiltered {
         Unfiltered {
-            base: SensorBase::new(exposure_factor),
+            base: SensorBase::new(exposure),
             pixels: Vec::new(),
         }
     }
@@ -27,9 +27,11 @@ impl Sensor for Unfiltered {
     }
 
     fn resolve(&self, target: &mut Float3) {
+        let exposure_factor = self.base.exposure_factor;
+
         for (i, pixel) in self.pixels.iter().enumerate() {
             let color = pixel.xyz() / pixel.v[3];
-            target.set_by_index(i as i32, color);
+            target.set_by_index(i as i32, exposure_factor * color);
         }
     }
 
