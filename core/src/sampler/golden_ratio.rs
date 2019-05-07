@@ -28,6 +28,18 @@ impl GoldenRatio {
         math::golden_ratio_2d(slice, r);
         random::biased_shuffle(slice, rng);
     }
+
+    fn generate_1d(&mut self, rng: &mut random::Generator, dimension: u32) {
+        let r = rng.random_float();
+
+        let begin = (dimension * self.base.num_samples) as usize;
+        let end = begin + self.base.num_samples as usize;
+
+        let slice = &mut self.samples_1d[begin..end];
+
+        math::golden_ratio_1d(slice, r);
+        random::biased_shuffle(slice, rng);
+    }
 }
 
 impl Sampler for GoldenRatio {
@@ -66,9 +78,16 @@ impl Sampler for GoldenRatio {
     ) -> CameraSample {
         if 0 == index {
             self.generate_2d(rng, 0);
+            self.generate_2d(rng, 1);
+            self.generate_1d(rng, 0);
         }
 
-        CameraSample::new(pixel, self.samples_2d[index as usize])
+        CameraSample::new(
+            pixel,
+            self.samples_2d[index as usize],
+            self.samples_2d[(self.base.num_samples + index) as usize],
+            self.samples_1d[index as usize],
+        )
     }
 
     fn generate_sample_2d(&mut self, rng: &mut random::Generator, dimension: u32) -> float2 {
@@ -87,6 +106,24 @@ impl Sampler for GoldenRatio {
         }
 
         self.samples_2d[(dimension * self.base.num_samples + current) as usize]
+    }
+
+    fn generate_sample_1d(&mut self, rng: &mut random::Generator, dimension: u32) -> f32 {
+        let current;
+        unsafe {
+            let current_ref = self
+                .base
+                .current_sample_1d
+                .get_unchecked_mut(dimension as usize);
+            current = *current_ref;
+            *current_ref += 1;
+        }
+
+        if 0 == current {
+            self.generate_1d(rng, dimension);
+        }
+
+        self.samples_1d[(dimension * self.base.num_samples + current) as usize]
     }
 }
 

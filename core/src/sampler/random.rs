@@ -26,13 +26,22 @@ impl Sampler for Random {
         &mut self,
         rng: &mut random::Generator,
         pixel: int2,
-        index: u32,
+        _index: u32,
     ) -> CameraSample {
-        CameraSample::new(pixel, float2::new(rng.random_float(), rng.random_float()))
+        CameraSample::new(
+            pixel,
+            float2::new(rng.random_float(), rng.random_float()),
+            float2::new(rng.random_float(), rng.random_float()),
+            rng.random_float(),
+        )
     }
 
-    fn generate_sample_2d(&mut self, rng: &mut random::Generator, dimension: u32) -> float2 {
+    fn generate_sample_2d(&mut self, rng: &mut random::Generator, _dimension: u32) -> float2 {
         float2::new(rng.random_float(), rng.random_float())
+    }
+
+    fn generate_sample_1d(&mut self, rng: &mut random::Generator, _dimension: u32) -> f32 {
+        rng.random_float()
     }
 }
 

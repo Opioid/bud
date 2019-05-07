@@ -1,8 +1,5 @@
-use std::io::Write;
-
-use base::math::vector2::int2;
-use base::math::vector3::float3;
 use image::{self, Float3};
+use std::io::Write;
 
 pub struct Writer {}
 

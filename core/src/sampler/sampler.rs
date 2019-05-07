@@ -64,6 +64,8 @@ pub trait Sampler {
     ) -> CameraSample;
 
     fn generate_sample_2d(&mut self, rng: &mut random::Generator, dimension: u32) -> float2;
+
+    fn generate_sample_1d(&mut self, rng: &mut random::Generator, dimension: u32) -> f32;
 }
 
 pub trait Factory {

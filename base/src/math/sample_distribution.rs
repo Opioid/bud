@@ -1,5 +1,21 @@
 use super::float2;
 
+pub fn golden_ratio_1d(samples: &mut [f32], r: f32) {
+    // set the initial first coordinate
+    let mut x = r;
+
+    // set the second coordinates
+    for s in samples.iter_mut() {
+        *s = x;
+
+        // increment the coordinate
+        x += 0.618033988749894;
+        if x >= 1.0 {
+            x -= 1.0
+        }
+    }
+}
+
 pub fn golden_ratio_2d(samples: &mut [float2], r: float2) {
     // set the initial first coordinate
     let mut x = r.v[0];
