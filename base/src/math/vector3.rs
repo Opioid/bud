@@ -1,3 +1,4 @@
+use super::vector2::vec2;
 use num::Zero;
 use std::ops;
 
@@ -18,6 +19,13 @@ impl<T: Copy + Zero + ops::Sub<Output = T> + ops::Mul<Output = T> + 'static> vec
     #[inline]
     pub fn from_scalar(s: T) -> vec3<T> {
         vec3 { v: [s, s, s] }
+    }
+
+    #[inline]
+    pub fn from_2(v: vec2<T>, z: T) -> vec3<T> {
+        vec3 {
+            v: [v.v[0], v.v[1], z],
+        }
     }
 
     #[inline]
