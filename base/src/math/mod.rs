@@ -18,7 +18,7 @@ pub use self::sampling::*;
 pub use self::transformation::Transformation;
 pub use self::vector2::*;
 pub use self::vector3::*;
-pub use self::vector4::float4;
+pub use self::vector4::*;
 
 pub use std::f32::consts::PI;
 

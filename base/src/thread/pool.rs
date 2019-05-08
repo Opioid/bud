@@ -1,32 +1,24 @@
-use std::thread;
 use std::sync::mpsc;
-
-//use std::time;
-
+use std::thread;
 
 pub struct Pool {
     workers: Vec<Worker>,
- //   sender: mpsc::Sender<Job>,
 }
 
 impl Pool {
     pub fn new(num_threads: u32) -> Pool {
-        
-        
         let mut workers = Vec::with_capacity(num_threads as usize);
 
         for id in 0..num_threads {
             workers.push(Worker::new(id));
         }
 
-        Pool {
-            workers,
-        }
+        Pool { workers }
     }
 
     pub fn run_parallel(&self) {
         for w in self.workers.iter() {
-            w.sender.send(Job{});
+            w.sender.send(Message::NewJob(Job {}));
         }
 
         self.wait_all();
@@ -39,26 +31,46 @@ impl Pool {
     }
 }
 
-struct Job;
+impl Drop for Pool {
+    fn drop(&mut self) {
+        for w in self.workers.iter() {
+            w.sender.send(Message::Terminate);
+        }
+
+        for w in self.workers.iter_mut() {
+            if let Some(thread) = w.thread.take() {
+                thread.join().unwrap();
+            }
+        }
+    }
+}
+
+struct Job {}
+
+enum Message {
+    NewJob(Job),
+    Terminate,
+}
 
 struct Worker {
     id: u32,
-    sender: mpsc::Sender<Job>,
+    sender: mpsc::Sender<Message>,
     receiver: mpsc::Receiver<()>,
-    thread: thread::JoinHandle<()>,
+    thread: Option<thread::JoinHandle<()>>,
 }
 
 impl Worker {
     fn new(id: u32) -> Worker {
         let (sender, worker_receiver) = mpsc::channel();
         let (worker_sender, receiver) = mpsc::channel();
-        
-        let thread = thread::spawn(move || {
-            loop {
-                worker_receiver.recv().unwrap();
-                println!{"Stuff {}", id};
 
-                worker_sender.send(());
+        let thread = thread::spawn(move || loop {
+            match worker_receiver.recv().unwrap() {
+                Message::NewJob(job) => {
+                    println! {"Stuff {}", id};
+                    worker_sender.send(());
+                }
+                Message::Terminate => break,
             }
         });
 
@@ -66,7 +78,7 @@ impl Worker {
             id,
             sender,
             receiver,
-            thread,
+            thread: Some(thread),
         }
     }
 }

@@ -1,45 +1,64 @@
-use super::float3;
+use super::vector2::vec2;
+use super::vector3::vec3;
+use num::Zero;
 use std::ops;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[allow(non_camel_case_types)]
-pub struct float4 {
-    pub v: [f32; 4],
+pub struct vec4<T> {
+    pub v: [T; 4],
 }
 
-impl float4 {
+impl<T> vec4<T>
+where
+    T: Copy + Zero + ops::Sub<Output = T> + ops::Mul<Output = T> + 'static,
+{
     #[inline]
-    pub fn identity() -> float4 {
-        float4 {
-            v: [0.0, 0.0, 0.0, 0.0],
+    pub fn identity() -> vec4<T> {
+        vec4 {
+            v: [num::zero(), num::zero(), num::zero(), num::zero()],
         }
     }
 
     #[inline]
-    pub fn from_3(v: float3, w: f32) -> float4 {
-        float4 {
+    pub fn from_2_2(a: vec2<T>, b: vec2<T>) -> vec4<T> {
+        vec4 {
+            v: [a.v[0], a.v[1], b.v[0], b.v[1]],
+        }
+    }
+
+    #[inline]
+    pub fn from_3(v: vec3<T>, w: T) -> vec4<T> {
+        vec4 {
             v: [v.v[0], v.v[1], v.v[2], w],
         }
     }
 
     #[inline]
-    pub fn new(x: f32, y: f32, z: f32, w: f32) -> float4 {
-        float4 { v: [x, y, z, w] }
+    pub fn new(x: T, y: T, z: T, w: T) -> vec4<T> {
+        vec4 { v: [x, y, z, w] }
     }
 
     #[inline]
-    pub fn xyz(self) -> float3 {
-        float3 {
+    pub fn xyz(self) -> vec3<T> {
+        vec3 {
             v: [self.v[0], self.v[1], self.v[2]],
         }
     }
 }
 
-impl ops::AddAssign for float4 {
-    fn add_assign(&mut self, other: float4) {
+impl<T: Copy + ops::AddAssign> ops::AddAssign for vec4<T> {
+    #[inline]
+    fn add_assign(&mut self, other: vec4<T>) {
         self.v[0] += other.v[0];
         self.v[1] += other.v[1];
         self.v[2] += other.v[2];
         self.v[3] += other.v[3];
     }
 }
+
+#[allow(non_camel_case_types)]
+pub type int4 = vec4<i32>;
+
+#[allow(non_camel_case_types)]
+pub type float4 = vec4<f32>;
