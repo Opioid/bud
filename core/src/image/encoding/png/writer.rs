@@ -5,6 +5,12 @@ use image::{self, Float3};
 use std::io::Write;
 use std::slice;
 use miniz_oxide::deflate;
+use miniz_oxide::inflate;
+
+use flate2::Compression;
+use flate2::write::DeflateEncoder;
+use std::io::prelude::*;
+use std::io;
 
 pub struct Writer {}
 
@@ -232,10 +238,10 @@ mod fake_zlib {
 #[derive(Copy, Clone)]
 #[repr(u8)]
 pub enum ColorType {
-    Grayscale = 0,
+    _Grayscale = 0,
     Truecolor = 2,
-    Palleted = 3,
-    GrayscaleAlpha = 4,
+    _Palleted = 3,
+    _GrayscaleAlpha = 4,
     TruecolorAlpha = 6,
 }
 
@@ -285,8 +291,16 @@ pub fn write_rgba_from_u8<W: Write>(file: &mut W, image: &[u8], w: u32, h: u32, 
             span += row_bytes;
         }
 
-        //  png_pack(file, b"IDAT", &fake_zlib::compress(&raw_data));
-        png_pack(file, b"IDAT", deflate::compress_to_vec(&raw_data, 6).as_slice());
+     //     png_pack(file, b"IDAT", &fake_zlib::compress(&raw_data));
+     //   png_pack(file, b"IDAT", deflate::compress_to_vec(&raw_data, 6).as_slice());
+
+
+    //    let mut e = DeflateEncoder::new(raw_data, Compression::default());
+
+        let mut e = DeflateEncoder::new(Vec::new(), Compression::default());
+        e.write_all(raw_data.as_slice());
+        png_pack(file, b"IDAT", e.finish().unwrap().as_slice());
+        
     }
 
  //   miniz_oxide::mz_crc32_oxide();
