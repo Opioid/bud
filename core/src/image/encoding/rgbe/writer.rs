@@ -13,20 +13,20 @@ impl image::Writer for Writer {
         "hdr"
     }
 
-    fn write(&self, stream: &mut Write, image: &Float3) {
+    fn write<W: Write>(&self, stream: &mut W, image: &Float3) {
         write_header(stream, image.dimensions);
 
         write_pixels_rle(stream, image);
     }
 }
 
-fn write_header(stream: &mut Write, dimensions: int2) {
+fn write_header<W: Write>(stream: &mut W, dimensions: int2) {
     stream.write(b"#?RGBE\n").unwrap();
     stream.write(b"FORMAT=32-bit_rle_rgbe\n\n").unwrap();
     write!(stream, "-Y {} +X {}\n", dimensions.v[1], dimensions.v[0]).unwrap();
 }
 
-fn write_pixels(stream: &mut Write, image: &Float3) {
+fn write_pixels<W: Write>(stream: &mut W, image: &Float3) {
     let d = image.dimensions;
     for i in 0..d.v[0] * d.v[1] {
         let rgbe = float_to_rgbe(image.get_by_index(i));
@@ -34,7 +34,7 @@ fn write_pixels(stream: &mut Write, image: &Float3) {
     }
 }
 
-fn write_pixels_rle(stream: &mut Write, image: &Float3) {
+fn write_pixels_rle<W: Write>(stream: &mut W, image: &Float3) {
     let scanline_width = image.dimensions.v[0];
     let num_scanlines = image.dimensions.v[1];
 
@@ -81,7 +81,7 @@ fn write_pixels_rle(stream: &mut Write, image: &Float3) {
 // The code below is only needed for the run-length encoded files.
 // Run length encoding adds considerable complexity but does save some space.
 // For each scanline, each channel (r,g,b,e) is encoded separately for better compression.
-fn write_bytes_rle(stream: &mut Write, data: &[u8]) {
+fn write_bytes_rle<W: Write>(stream: &mut W, data: &[u8]) {
     let min_run_length = 4;
 
     let mut buffer = [0u8, 0u8];

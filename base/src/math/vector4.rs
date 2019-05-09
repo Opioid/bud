@@ -58,6 +58,9 @@ impl<T: Copy + ops::AddAssign> ops::AddAssign for vec4<T> {
 }
 
 #[allow(non_camel_case_types)]
+pub type byte4 = vec4<u8>;
+
+#[allow(non_camel_case_types)]
 pub type int4 = vec4<i32>;
 
 #[allow(non_camel_case_types)]

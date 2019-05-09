@@ -13,6 +13,8 @@ use core::scene::{self, Scene};
 use core::take;
 use options::Options;
 
+use base::math::int2;
+
 fn main() {
     let total_start = Instant::now();
 

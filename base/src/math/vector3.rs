@@ -141,6 +141,9 @@ impl ops::Div<f32> for float3 {
 }
 
 #[allow(non_camel_case_types)]
+pub type byte3 = vec3<u8>;
+
+#[allow(non_camel_case_types)]
 pub type int3 = vec3<i32>;
 
 #[allow(non_camel_case_types)]
