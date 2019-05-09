@@ -4,6 +4,7 @@ use base::spectrum::srgb;
 use image::{self, Float3};
 use std::io::Write;
 use std::slice;
+use miniz_oxide::deflate;
 
 pub struct Writer {}
 
@@ -284,8 +285,11 @@ pub fn write_rgba_from_u8<W: Write>(file: &mut W, image: &[u8], w: u32, h: u32, 
             span += row_bytes;
         }
 
-        png_pack(file, b"IDAT", &fake_zlib::compress(&raw_data));
+        //  png_pack(file, b"IDAT", &fake_zlib::compress(&raw_data));
+        png_pack(file, b"IDAT", deflate::compress_to_vec(&raw_data, 6).as_slice());
     }
 
+ //   miniz_oxide::mz_crc32_oxide();
+    
     png_pack(file, b"IEND", &[]);
 }
