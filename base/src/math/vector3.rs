@@ -2,7 +2,7 @@ use super::vector2::vec2;
 use num::Zero;
 use std::ops;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct vec3<T> {
     pub v: [T; 3],

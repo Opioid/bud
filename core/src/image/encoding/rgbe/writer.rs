@@ -2,7 +2,7 @@ use std::io::Write;
 
 use base::math::vector2::int2;
 use base::math::vector3::float3;
-use image::{self, Float3};
+use image::{self, Float4};
 
 pub struct Writer {}
 
@@ -13,7 +13,7 @@ impl image::Writer for Writer {
         "hdr"
     }
 
-    fn write<W: Write>(&self, stream: &mut W, image: &Float3) {
+    fn write<W: Write>(&self, stream: &mut W, image: &Float4) {
         write_header(stream, image.dimensions);
 
         write_pixels_rle(stream, image);
@@ -26,15 +26,15 @@ fn write_header<W: Write>(stream: &mut W, dimensions: int2) {
     write!(stream, "-Y {} +X {}\n", dimensions.v[1], dimensions.v[0]).unwrap();
 }
 
-fn write_pixels<W: Write>(stream: &mut W, image: &Float3) {
+fn write_pixels<W: Write>(stream: &mut W, image: &Float4) {
     let d = image.dimensions;
     for i in 0..d.v[0] * d.v[1] {
-        let rgbe = float_to_rgbe(image.get_by_index(i));
+        let rgbe = float_to_rgbe(image.get_by_index(i).xyz());
         stream.write(&rgbe).unwrap();
     }
 }
 
-fn write_pixels_rle<W: Write>(stream: &mut W, image: &Float3) {
+fn write_pixels_rle<W: Write>(stream: &mut W, image: &Float4) {
     let scanline_width = image.dimensions.v[0];
     let num_scanlines = image.dimensions.v[1];
 
@@ -57,7 +57,7 @@ fn write_pixels_rle<W: Write>(stream: &mut W, image: &Float3) {
         stream.write(&rgbe).unwrap();
 
         for i in 0..scanline_width {
-            let pixel = image.get_by_index(current_pixel);
+            let pixel = image.get_by_index(current_pixel).xyz();
 
             rgbe = float_to_rgbe(pixel);
 

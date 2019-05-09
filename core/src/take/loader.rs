@@ -8,7 +8,7 @@ use image;
 use json;
 use rendering::integrator::surface::AoFactory;
 use rendering::integrator::surface::Factory as SurfaceFactory;
-use rendering::sensor::{Sensor, Unfiltered};
+use rendering::sensor::{Opaque, Sensor, Unfiltered};
 use sampler::Factory as SamplerFactory;
 use sampler::GoldenRatioFactory;
 use sampler::RandomFactory;
@@ -146,7 +146,7 @@ impl Loader {
             }
         }
 
-        Some((resolution, Box::new(Unfiltered::new(exposure))))
+        Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))))
     }
 
     fn load_exporters(export_value: &Value, view: &mut View) -> Vec<Box<dyn exporting::Sink>> {

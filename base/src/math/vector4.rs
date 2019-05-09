@@ -3,7 +3,7 @@ use super::vector3::vec3;
 use num::Zero;
 use std::ops;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct vec4<T> {
     pub v: [T; 4],

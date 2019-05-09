@@ -1,6 +1,10 @@
 pub mod encoding;
-pub mod float3;
+pub mod typed_image;
 pub mod writer;
 
-pub use self::float3::Float3;
+use base::math::{float3, float4};
+
 pub use self::writer::Writer;
+
+pub type Float3 = self::typed_image::TypedImage<float3>;
+pub type Float4 = self::typed_image::TypedImage<float4>;

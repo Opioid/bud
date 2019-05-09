@@ -1,5 +1,5 @@
 use super::Sink;
-use image::{Float3, Writer};
+use image::{Float4, Writer};
 use std::fs::File;
 use std::io::BufWriter;
 
@@ -15,7 +15,7 @@ impl<T: Writer> ImageSequence<T> {
 }
 
 impl<T: Writer> Sink for ImageSequence<T> {
-    fn write(&mut self, image: &Float3) {
+    fn write(&mut self, image: &Float4) {
         if let Ok(file) = File::create(self.filename.clone() + "." + self.writer.file_extension()) {
             let mut stream = BufWriter::new(file);
             self.writer.write(&mut stream, image);

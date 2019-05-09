@@ -1,7 +1,7 @@
 use base::encoding;
 use base::math::{byte3, byte4, float3};
 use base::spectrum::srgb;
-use image::{self, Float3};
+use image::{self, Float4};
 use miniz_oxide::deflate;
 use std::io::Write;
 use std::slice;
@@ -13,7 +13,7 @@ impl image::Writer for Writer {
         "png"
     }
 
-    fn write<W: Write>(&self, stream: &mut W, image: &Float3) {
+    fn write<W: Write>(&self, stream: &mut W, image: &Float4) {
         let d = image.dimensions;
 
         let num_pixels = d.v[0] * d.v[1];
@@ -21,7 +21,7 @@ impl image::Writer for Writer {
         let mut srgb = vec![byte3::identity(); num_pixels as usize];
 
         for i in 0..num_pixels {
-            let c = image.get_by_index(i);
+            let c = image.get_by_index(i).xyz();
 
             let c = srgb::linear_to_gamma_3(c);
 
@@ -48,7 +48,7 @@ impl image::Writer for WriterAlpha {
         "png"
     }
 
-    fn write<W: Write>(&self, stream: &mut W, image: &Float3) {
+    fn write<W: Write>(&self, stream: &mut W, image: &Float4) {
         let d = image.dimensions;
 
         let num_pixels = d.v[0] * d.v[1];
@@ -58,9 +58,9 @@ impl image::Writer for WriterAlpha {
         for i in 0..num_pixels {
             let c = image.get_by_index(i);
 
-            let c = srgb::linear_to_gamma_3(c);
+            let c = srgb::linear_to_gamma_4(c);
 
-            srgb[i as usize] = byte4::from_3(encoding::float_to_unorm_3(c), 255);
+            srgb[i as usize] = encoding::float_to_unorm_4(c);
         }
 
         let byte_slice =
