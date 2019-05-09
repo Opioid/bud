@@ -2,15 +2,9 @@ use base::encoding;
 use base::math::{byte3, byte4, float3};
 use base::spectrum::srgb;
 use image::{self, Float3};
+use miniz_oxide::deflate;
 use std::io::Write;
 use std::slice;
-use miniz_oxide::deflate;
-use miniz_oxide::inflate;
-
-use flate2::Compression;
-use flate2::write::DeflateEncoder;
-use std::io::prelude::*;
-use std::io;
 
 pub struct Writer {}
 
@@ -135,104 +129,26 @@ mod crc32 {
     }
 }
 
-mod adler32 {
-    // https://en.wikipedia.org/wiki/Adler-32
-
-    pub struct Adler32 {
-        a: u32,
-        b: u32,
-    }
-
-    const MOD_ADLER: u32 = 65521;
-
-    impl Adler32 {
-        pub fn new() -> Adler32 {
-            Adler32 { a: 1, b: 0 }
-        }
-
-        pub fn start(&mut self) {
-            self.a = 1;
-            self.b = 0;
-        }
-
-        pub fn update(&mut self, buf: &[u8]) {
-            for &i in buf {
-                self.a = (self.a.wrapping_add(i as u32)) % MOD_ADLER;
-                self.b = (self.a.wrapping_add(self.b)) % MOD_ADLER;
-            }
-        }
-
-        pub fn finalize(&self) -> u32 {
-            return (self.b << 16) | self.a;
-        }
-
-        #[allow(dead_code)]
-        pub fn crc(&mut self, buf: &[u8]) -> u32 {
-            self.start();
-            self.update(buf);
-            self.finalize()
-        }
-    }
-}
-
 // big endian
 #[inline]
 fn u32_to_u8_be(v: u32) -> [u8; 4] {
     [(v >> 24) as u8, (v >> 16) as u8, (v >> 8) as u8, v as u8]
 }
 
-// Create valid, uncompressed zlib data.
-mod fake_zlib {
-    use super::adler32;
-    use super::u32_to_u8_be;
+pub fn zlib_compress(data: &[u8]) -> Vec<u8> {
+    let mut raw_data = Vec::with_capacity(data.len());
 
-    // Use 'none' compression
-    pub fn compress(data: &[u8]) -> Vec<u8> {
-        const CHUNK_SIZE: usize = 65530;
+    // header
+    raw_data.extend(&[120, 1]);
 
-        let final_len =
-            // header
-            2 +
-            // every chunk adds 5 bytes [1:type, 4:size].
-            (5 * {
-                let n = data.len() / CHUNK_SIZE;
-                // include an extra chunk when we don't fit exactly into CHUNK_SIZE
-                (n + {if data.len() == n * CHUNK_SIZE && data.len() != 0 { 0 } else { 1 }})
-            }) +
-            // data
-            data.len() +
-            // crc
-            4
-        ;
+    raw_data.extend(deflate::compress_to_vec(&data, 6).as_slice());
 
-        let mut raw_data = Vec::with_capacity(final_len);
-        // header
-        raw_data.extend(&[120, 1]);
-        let mut pos = 0;
-        let mut crc = adler32::Adler32::new();
-        for chunk in data.chunks(CHUNK_SIZE) {
-            let chunk_len = chunk.len();
-            pos += chunk_len;
-            let is_last = pos == data.len();
-            raw_data.extend(&[
-                // type
-                if is_last { 1 } else { 0 },
-                // size
-                (chunk_len & 0xff) as u8,
-                ((chunk_len >> 8) & 0xff) as u8,
-                (0xff - (chunk_len & 0xff)) as u8,
-                (0xff - ((chunk_len >> 8) & 0xff)) as u8,
-            ]);
+    // adler check value
+    let adler = miniz_oxide::mz_adler32_oxide(1, &data);
 
-            raw_data.extend(chunk);
-            crc.update(chunk);
-        }
+    raw_data.extend(&u32_to_u8_be(adler));
 
-        raw_data.extend(&u32_to_u8_be(crc.finalize()));
-
-        assert_eq!(final_len, raw_data.len());
-        return raw_data;
-    }
+    raw_data
 }
 
 #[derive(Copy, Clone)]
@@ -291,19 +207,8 @@ pub fn write_rgba_from_u8<W: Write>(file: &mut W, image: &[u8], w: u32, h: u32, 
             span += row_bytes;
         }
 
-     //     png_pack(file, b"IDAT", &fake_zlib::compress(&raw_data));
-     //   png_pack(file, b"IDAT", deflate::compress_to_vec(&raw_data, 6).as_slice());
-
-
-    //    let mut e = DeflateEncoder::new(raw_data, Compression::default());
-
-        let mut e = DeflateEncoder::new(Vec::new(), Compression::default());
-        e.write_all(raw_data.as_slice());
-        png_pack(file, b"IDAT", e.finish().unwrap().as_slice());
-        
+        png_pack(file, b"IDAT", &zlib_compress(&raw_data));
     }
 
- //   miniz_oxide::mz_crc32_oxide();
-    
     png_pack(file, b"IEND", &[]);
 }

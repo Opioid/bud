@@ -1,7 +1,6 @@
 extern crate base;
-extern crate serde_json;
 extern crate miniz_oxide;
-extern crate flate2;
+extern crate serde_json;
 
 pub mod error;
 pub mod exporting;
