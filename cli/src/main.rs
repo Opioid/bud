@@ -4,7 +4,6 @@ extern crate core;
 mod options;
 
 use std::env;
-use std::time::Instant;
 
 use base::chrono;
 use base::thread;
@@ -12,6 +11,7 @@ use core::rendering::driver;
 use core::scene::{self, Scene};
 use core::take;
 use options::Options;
+use std::time::Instant;
 
 use base::math::int2;
 
@@ -65,7 +65,7 @@ fn main() {
 
     let take = take::Loader::load(&mut stream.unwrap());
 
-    thread_pool.run_parallel();
+    //   thread_pool.run_parallel();
 
     if let Err(err) = take {
         println!("Loading take \"{}\": {}", options.take, err.message());
@@ -99,7 +99,7 @@ fn main() {
         driver.render(&scene, &mut take.view, &mut take.exporters);
     }
 
-    thread_pool.run_parallel();
+    //   thread_pool.run_parallel();
 
     println!(
         "Total render time {} s",

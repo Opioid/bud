@@ -24,7 +24,7 @@ impl ComposedTransformation {
     pub fn set(&mut self, t: &Transformation) {
         let rot = Quaternion::create_matrix3x3(t.rotation);
 
-        let otw = float4x4::compose(t.scale, t.position);
+        let otw = float4x4::compose(&rot, t.scale, t.position);
 
         self.object_to_world = otw;
 

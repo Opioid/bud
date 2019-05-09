@@ -1,4 +1,4 @@
-use super::{float3, float4};
+use super::{float3, float3x3, float4};
 
 #[derive(Copy, Clone)]
 #[allow(non_camel_case_types)]
@@ -20,12 +20,27 @@ impl float4x4 {
     }
 
     #[inline]
-    pub fn compose(scale: float3, origin: float3) -> float4x4 {
+    pub fn compose(basis: &float3x3, scale: float3, origin: float3) -> float4x4 {
         float4x4 {
             r: [
-                float4::new(1.0 * scale.v[0], 0.0 * scale.v[0], 0.0 * scale.v[0], 0.0),
-                float4::new(0.0 * scale.v[1], 1.0 * scale.v[1], 0.0 * scale.v[1], 0.0),
-                float4::new(0.0 * scale.v[2], 0.0 * scale.v[2], 1.0 * scale.v[2], 0.0),
+                float4::new(
+                    basis.r[0].v[0] * scale.v[0],
+                    basis.r[0].v[1] * scale.v[0],
+                    basis.r[0].v[2] * scale.v[0],
+                    0.0,
+                ),
+                float4::new(
+                    basis.r[1].v[0] * scale.v[1],
+                    basis.r[1].v[1] * scale.v[1],
+                    basis.r[1].v[2] * scale.v[1],
+                    0.0,
+                ),
+                float4::new(
+                    basis.r[2].v[0] * scale.v[2],
+                    basis.r[2].v[1] * scale.v[2],
+                    basis.r[2].v[2] * scale.v[2],
+                    0.0,
+                ),
                 float4::new(origin.v[0], origin.v[1], origin.v[2], 1.0),
             ],
         }

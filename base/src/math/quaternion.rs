@@ -1,6 +1,6 @@
 use super::{float3x3, float4};
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Quaternion(pub float4);
 
 impl Quaternion {

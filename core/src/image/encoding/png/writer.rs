@@ -1,5 +1,5 @@
 use base::encoding;
-use base::math::{byte4, float3};
+use base::math::{byte3, byte4, float3};
 use base::spectrum::srgb;
 use image::{self, Float3};
 use std::io::Write;
@@ -8,6 +8,41 @@ use std::slice;
 pub struct Writer {}
 
 impl image::Writer for Writer {
+    fn file_extension(&self) -> &'static str {
+        "png"
+    }
+
+    fn write<W: Write>(&self, stream: &mut W, image: &Float3) {
+        let d = image.dimensions;
+
+        let num_pixels = d.v[0] * d.v[1];
+
+        let mut srgb = vec![byte3::identity(); num_pixels as usize];
+
+        for i in 0..num_pixels {
+            let c = image.get_by_index(i);
+
+            let c = srgb::linear_to_gamma_3(c);
+
+            srgb[i as usize] = byte3::from(encoding::float_to_unorm_3(c));
+        }
+
+        let byte_slice =
+            unsafe { slice::from_raw_parts(srgb.as_ptr() as *const u8, (num_pixels * 3) as usize) };
+
+        write_rgba_from_u8(
+            stream,
+            byte_slice,
+            d.v[0] as u32,
+            d.v[1] as u32,
+            ColorType::Truecolor,
+        );
+    }
+}
+
+pub struct WriterAlpha {}
+
+impl image::Writer for WriterAlpha {
     fn file_extension(&self) -> &'static str {
         "png"
     }
@@ -30,7 +65,13 @@ impl image::Writer for Writer {
         let byte_slice =
             unsafe { slice::from_raw_parts(srgb.as_ptr() as *const u8, (num_pixels * 4) as usize) };
 
-        write_rgba_from_u8(stream, byte_slice, d.v[0] as u32, d.v[1] as u32);
+        write_rgba_from_u8(
+            stream,
+            byte_slice,
+            d.v[0] as u32,
+            d.v[1] as u32,
+            ColorType::TruecolorAlpha,
+        );
     }
 }
 
@@ -133,9 +174,7 @@ fn u32_to_u8_be(v: u32) -> [u8; 4] {
     [(v >> 24) as u8, (v >> 16) as u8, (v >> 8) as u8, v as u8]
 }
 
-///
-/// Create valid, uncompressed zlib data.
-///
+// Create valid, uncompressed zlib data.
 mod fake_zlib {
     use super::adler32;
     use super::u32_to_u8_be;
@@ -189,17 +228,18 @@ mod fake_zlib {
     }
 }
 
-///
-/// Write RGBA pixels to uncompressed PNG.
-///
-pub fn write_rgba_from_u8<W: Write>(
-    file: &mut W,
-    image: &[u8],
-    w: u32,
-    h: u32,
-) -> Result<(), ::std::io::Error> {
-    assert!(w as usize * h as usize * 4 == image.len());
+#[derive(Copy, Clone)]
+#[repr(u8)]
+pub enum ColorType {
+    Grayscale = 0,
+    Truecolor = 2,
+    Palleted = 3,
+    GrayscaleAlpha = 4,
+    TruecolorAlpha = 6,
+}
 
+// Write RGBA pixels to uncompressed PNG.
+pub fn write_rgba_from_u8<W: Write>(file: &mut W, image: &[u8], w: u32, h: u32, ct: ColorType) {
     fn png_pack<W: Write>(file: &mut W, png_tag: &[u8; 4], data: &[u8]) {
         file.write(&u32_to_u8_be(data.len() as u32)).unwrap();
         file.write(png_tag).unwrap();
@@ -213,22 +253,27 @@ pub fn write_rgba_from_u8<W: Write>(
         }
     }
 
-    file.write(b"\x89PNG\r\n\x1a\n")?;
+    file.write(b"\x89PNG\r\n\x1a\n").unwrap();
     {
         let wb = u32_to_u8_be(w);
         let hb = u32_to_u8_be(h);
         let data = [
             wb[0], wb[1], wb[2], wb[3], // width
-            hb[0], hb[1], hb[2], hb[3], // height
-            8,     // color depth
-            6,     // color type
+            hb[0], hb[1], hb[2], hb[3],    // height
+            8,        // color depth
+            ct as u8, // color type
             0, 0, 0,
         ];
         png_pack(file, b"IHDR", &data);
     }
 
     {
-        let row_bytes = w * 4;
+        let bytes_per_pixel = match ct {
+            ColorType::Truecolor => 3,
+            _ => 4,
+        };
+
+        let row_bytes = w * bytes_per_pixel;
         let final_len = (row_bytes + 1) * h;
         let mut raw_data = Vec::with_capacity(final_len as usize);
         let mut span = 0;
@@ -239,12 +284,8 @@ pub fn write_rgba_from_u8<W: Write>(
             span += row_bytes;
         }
 
-        assert!(final_len == (raw_data.len() as u32));
-
         png_pack(file, b"IDAT", &fake_zlib::compress(&raw_data));
     }
 
     png_pack(file, b"IEND", &[]);
-
-    Ok(())
 }
