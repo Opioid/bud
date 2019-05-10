@@ -20,10 +20,8 @@ pub struct FinalFrame<'a> {
 
 impl<'a> FinalFrame<'a> {
     pub fn new(thread_pool: &'a thread::Pool, take: &Take) -> FinalFrame<'a> {
-        let dimensions = take.view.camera.sensor_dimensions();
-
         let mut ff = FinalFrame {
-            base: DriverBase::new(thread_pool, dimensions),
+            base: DriverBase::new(thread_pool, take.view.camera.as_ref()),
             integrators: Vec::new(),
             samplers: Vec::new(),
         };
@@ -75,26 +73,35 @@ impl<'a> FinalFrame<'a> {
 
         camera.update();
 
-        let d = camera.sensor_dimensions();
+        loop {
+            match self.base.tiles.pop() {
+                None => break,
+                Some(tile) => {
+                    let tile_index = self.base.tiles.index(tile);
 
-        for y in 0..d.v[1] {
-            for x in 0..d.v[0] {
-                self.samplers[0].start_pixel();
-                self.integrators[0].start_pixel();
+                    self.base.worker.rng().start(0, tile_index as u64);
 
-                for s in 0..view.num_samples_per_pixel {
-                    let sample = self.samplers[0].generate_camera_sample(
-                        self.base.worker.rng(),
-                        int2::new(x, y),
-                        s,
-                    );
+                    for y in tile.v[1]..tile.v[3] + 1 {
+                        for x in tile.v[0]..tile.v[2] + 1 {
+                            self.samplers[0].start_pixel();
+                            self.integrators[0].start_pixel();
 
-                    let ray = camera.generate_ray(&sample, 0);
+                            for s in 0..view.num_samples_per_pixel {
+                                let sample = self.samplers[0].generate_camera_sample(
+                                    self.base.worker.rng(),
+                                    int2::new(x, y),
+                                    s,
+                                );
 
-                    if let Some(mut ray) = ray {
-                        let color = self.li(scene, &mut ray);
+                                let ray = camera.generate_ray(&sample, 0);
 
-                        camera.sensor_mut().add_sample(&sample, color);
+                                if let Some(mut ray) = ray {
+                                    let color = self.li(scene, &mut ray);
+
+                                    camera.sensor_mut().add_sample(&sample, color);
+                                }
+                            }
+                        }
                     }
                 }
             }

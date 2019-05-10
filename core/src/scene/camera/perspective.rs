@@ -115,6 +115,10 @@ impl Camera for Perspective {
         Some(Ray::new(origin_w, direction_w, 0.0, scene::RAY_MAX_T, time))
     }
 
+    fn resolution(&self) -> int2 {
+        self.base.resolution
+    }
+
     fn sensor(&self) -> &dyn Sensor {
         &(*self.base.sensor)
     }

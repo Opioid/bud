@@ -191,7 +191,11 @@ pub fn write_u8<W: Write>(stream: &mut W, image: &[u8], w: u32, h: u32, ct: Colo
             span += row_bytes;
         }
 
-        write_chunk(stream, b"IDAT", &deflate::compress_to_vec_zlib(&raw_data, 6));
+        write_chunk(
+            stream,
+            b"IDAT",
+            &deflate::compress_to_vec_zlib(&raw_data, 6),
+        );
     }
 
     write_chunk(stream, b"IEND", &[]);

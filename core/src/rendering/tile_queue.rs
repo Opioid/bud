@@ -71,6 +71,13 @@ impl TileQueue {
         None
     }
 
+    pub fn index(&self, tile: int4) -> u32 {
+        let x = tile.v[0].max(0) / self.tile_dimensions.v[0];
+        let y = tile.v[1].max(0) / self.tile_dimensions.v[1];
+
+        (y * self.tiles_per_row + x) as u32
+    }
+
     fn push(&mut self, tile: int4) {
         let current =
             self.tiles.len() as u32 - self.current_consume.fetch_sub(1, Ordering::Relaxed);
