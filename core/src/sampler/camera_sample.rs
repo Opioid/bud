@@ -9,11 +9,6 @@ pub struct CameraSample {
 
 impl CameraSample {
     pub fn new(pixel: int2, pixel_uv: float2, lens_uv: float2, time: f32) -> CameraSample {
-        CameraSample {
-            pixel,
-            pixel_uv,
-            lens_uv,
-            time,
-        }
+        CameraSample { pixel, pixel_uv, lens_uv, time }
     }
 }

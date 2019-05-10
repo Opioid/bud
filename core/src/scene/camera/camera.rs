@@ -1,4 +1,4 @@
-use base::math::int2;
+use base::math::{int2, int4};
 use rendering::sensor::Sensor;
 use sampler::CameraSample;
 use scene::entity::Entity;
@@ -59,6 +59,8 @@ pub trait Camera {
     fn sensor(&self) -> &dyn Sensor;
 
     fn sensor_mut(&mut self) -> &mut dyn Sensor;
+
+    fn view_bounds(&mut self, view: u32) -> int4;
 
     fn sensor_dimensions(&self) -> int2;
 

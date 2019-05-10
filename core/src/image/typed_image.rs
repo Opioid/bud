@@ -1,4 +1,3 @@
-use base::math::float3;
 use base::math::int2;
 
 pub struct TypedImage<T> {

@@ -9,9 +9,7 @@ pub struct Worker {
 
 impl Worker {
     pub fn new() -> Worker {
-        Worker {
-            rng: random::Generator::new(0, 0),
-        }
+        Worker { rng: random::Generator::new(0, 0) }
     }
 
     pub fn intersect(&self, scene: &Scene, ray: &mut Ray, intersection: &mut Intersection) -> bool {

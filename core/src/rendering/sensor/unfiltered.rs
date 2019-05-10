@@ -1,5 +1,5 @@
 use super::sensor::{Sensor, TypedSensor};
-use base::math::{float4, int2};
+use base::math::{float4, int2, int4};
 use image::Float4;
 use sampler::CameraSample;
 
@@ -11,10 +11,8 @@ impl<T> Unfiltered<T>
 where
     T: TypedSensor,
 {
-    pub fn new(exposure: f32) -> Unfiltered<T> {
-        Unfiltered {
-            base: T::new(exposure),
-        }
+    pub fn new(dimensions: int2, exposure: f32) -> Unfiltered<T> {
+        Unfiltered { base: T::new(dimensions, exposure) }
     }
 }
 
@@ -26,15 +24,15 @@ where
         self.base.has_alpha_transparency()
     }
 
-    fn resize(&mut self, dimensions: int2) {
-        self.base.resize(dimensions)
-    }
-
     fn resolve(&self, target: &mut Float4) {
         self.base.resolve(target)
     }
 
-    fn add_sample(&mut self, sample: &CameraSample, color: float4) {
-        self.base.add_pixel(sample.pixel, color, 1.0)
+    fn filter_radius_int(&self) -> i32 {
+        0
+    }
+
+    fn add_sample(&mut self, sample: &CameraSample, color: float4, bounds: int4) {
+        self.base.add_pixel(bounds.xy() + sample.pixel, color, 1.0)
     }
 }

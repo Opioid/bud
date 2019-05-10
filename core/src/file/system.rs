@@ -9,9 +9,7 @@ pub struct System {
 
 impl System {
     pub fn new() -> System {
-        System {
-            mount_folders: Vec::new(),
-        }
+        System { mount_folders: Vec::new() }
     }
 
     pub fn read_stream(&self, name: &str) -> Result<impl BufRead, Error> {
@@ -37,9 +35,7 @@ impl System {
             return Ok(BufReader::new(file));
         }
 
-        Err(Error::from_string(
-            "Stream \"".to_string() + name + "\" could not be opened.",
-        ))
+        Err(Error::from_string("Stream \"".to_string() + name + "\" could not be opened."))
     }
 
     pub fn push_mount(&mut self, folder: &str) {

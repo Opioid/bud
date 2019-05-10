@@ -1,4 +1,4 @@
-use base::math::{float4, int2};
+use base::math::{float4, int2, int4};
 use image::Float4;
 use sampler::CameraSample;
 
@@ -8,30 +8,25 @@ pub struct SensorBase {
 }
 
 impl SensorBase {
-    pub fn new(exposure: f32) -> SensorBase {
-        SensorBase {
-            dimensions: int2::identity(),
-            exposure_factor: exposure.exp2(),
-        }
+    pub fn new(dimensions: int2, exposure: f32) -> SensorBase {
+        SensorBase { dimensions, exposure_factor: exposure.exp2() }
     }
 }
 
 pub trait Sensor {
     fn has_alpha_transparency(&self) -> bool;
 
-    fn resize(&mut self, dimensions: int2);
-
     fn resolve(&self, target: &mut Float4);
 
-    fn add_sample(&mut self, sample: &CameraSample, color: float4);
+    fn filter_radius_int(&self) -> i32;
+
+    fn add_sample(&mut self, sample: &CameraSample, color: float4, bounds: int4);
 }
 
 pub trait TypedSensor {
-    fn new(exposure: f32) -> Self;
+    fn new(dimensions: int2, exposure: f32) -> Self;
 
     fn has_alpha_transparency(&self) -> bool;
-
-    fn resize(&mut self, dimensions: int2);
 
     fn resolve(&self, target: &mut Float4);
 

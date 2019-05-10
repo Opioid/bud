@@ -74,12 +74,7 @@ impl Worker {
             }
         });
 
-        Worker {
-            id,
-            sender,
-            receiver,
-            thread: Some(thread),
-        }
+        Worker { id, sender, receiver, thread: Some(thread) }
     }
 }
 

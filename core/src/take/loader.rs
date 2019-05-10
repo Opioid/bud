@@ -1,18 +1,18 @@
-use error::Error;
-use serde_json::Value;
-use std::io::BufRead;
-
 use base::math::{int2, Transformation};
+use error::Error;
 use exporting;
 use image;
 use json;
 use rendering::integrator::surface::AoFactory;
 use rendering::integrator::surface::Factory as SurfaceFactory;
+use rendering::sensor::filter::Gaussian;
 use rendering::sensor::{Filtered1p0, Opaque, Sensor, Transparent, Unfiltered};
 use sampler::Factory as SamplerFactory;
 use sampler::GoldenRatioFactory;
 use sampler::RandomFactory;
 use scene::camera::{Camera, CameraBase, Perspective};
+use serde_json::Value;
+use std::io::BufRead;
 use take::{Take, View};
 
 pub struct Loader {}
@@ -65,11 +65,8 @@ impl Loader {
             sampler_factory = Some(Box::new(RandomFactory {}));
         }
 
-        let mut take = Take::new(
-            camera.unwrap(),
-            surface_factory.unwrap(),
-            sampler_factory.unwrap(),
-        );
+        let mut take =
+            Take::new(camera.unwrap(), surface_factory.unwrap(), sampler_factory.unwrap());
 
         take.view.num_samples_per_pixel = num_samples_per_pixel;
         take.view.start_frame = start_frame;
@@ -82,10 +79,8 @@ impl Loader {
 
         if take.exporters.is_empty() {
             let writer = image::encoding::png::Writer {};
-            take.exporters.push(Box::new(exporting::ImageSequence::new(
-                "output_".to_string(),
-                writer,
-            )));
+            take.exporters
+                .push(Box::new(exporting::ImageSequence::new("output_".to_string(), writer)));
         }
 
         Ok(take)
@@ -100,26 +95,39 @@ impl Loader {
 
         let mut transformation = Transformation::identity();
 
-        let mut sensor = None;
+        let mut resolution = int2::identity();
+
+        let mut sensor_value = None;
 
         let mut parameters_value = None;
 
         for (name, value) in type_value.iter() {
             match name.as_ref() {
-                "sensor" => sensor = Loader::load_sensor(value),
+                "sensor" => {
+                    resolution = Loader::read_resolution(value);
+                    sensor_value = Some(value);
+                }//sensor = Loader::load_sensor(value),
                 "transformation" => json::read_transformation(value, &mut transformation),
                 "parameters" => parameters_value = Some(value),
                 _ => (),
             }
         }
 
-        let (resolution, sensor) = sensor?;
+        //    let (resolution, sensor) = sensor?;
 
         if int2::identity() == resolution {
             return None;
         }
 
-        let mut camera = Box::new(Perspective::new(resolution, sensor));
+        let sensor_dimensions = Perspective::sensor_dimensions(resolution);
+
+        let sensor = Loader::load_sensor(sensor_value.unwrap(), sensor_dimensions);
+
+        if sensor.is_none() {
+            return None;
+        }
+
+        let mut camera = Box::new(Perspective::new(resolution, sensor.unwrap()));
 
         if let Some(parameters_value) = parameters_value {
             CameraBase::set_parameters(&mut (*camera), parameters_value);
@@ -130,20 +138,34 @@ impl Loader {
         Some(camera)
     }
 
-    fn load_sensor(sensor_value: &Value) -> Option<(int2, Box<dyn Sensor>)> {
+    fn read_resolution(sensor_value: &Value) -> int2 {
+        let sensor_value = match sensor_value {
+            Value::Object(sensor_value) => sensor_value,
+            _ => return int2::identity(),
+        };
+
+        for (name, value) in sensor_value.iter() {
+            match name.as_ref() {
+                "resolution" => return json::read_int2(value),
+                _ => (),
+            }
+        }
+
+        int2::identity()
+    }
+
+    fn load_sensor(sensor_value: &Value, dimensions: int2) -> Option<Box<dyn Sensor>> {
         let sensor_value = sensor_value.as_object()?;
 
         let mut alpha_transparency = false;
         let mut exposure = 0.0;
         let mut filter_value = None;
-        let mut resolution = int2::identity();
 
         for (name, value) in sensor_value.iter() {
             match name.as_ref() {
                 "alpha_transparency" => alpha_transparency = value.as_bool().unwrap(),
                 "exposure" => exposure = json::read_float(value),
                 "filter" => filter_value = Some(value),
-                "resolution" => resolution = json::read_int2(value),
                 _ => (),
             }
         }
@@ -151,7 +173,7 @@ impl Loader {
         if let Some(filter_value) = filter_value {
             let filter_value = match filter_value {
                 Value::Object(filter_value) => filter_value,
-                _ => return Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure)))),
+                _ => return Some(Box::new(Unfiltered::<Opaque>::new(dimensions, exposure))),
             };
 
             let mut type_name = "";
@@ -169,35 +191,30 @@ impl Loader {
             }
 
             if filter_parameters.is_none() {
-                return Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))));
+                return Some(Box::new(Unfiltered::<Opaque>::new(dimensions, exposure)));
             }
 
             let filter_parameters = filter_parameters.unwrap();
 
             if alpha_transparency {
-                Some((
-                    resolution,
-                    Box::new(Filtered1p0::<Transparent>::new(exposure)),
-                ))
+                Some(Box::new(Unfiltered::<Transparent>::new(dimensions, exposure)))
             } else {
                 match type_name {
                     "Gaussian" => {
                         let p = read_gaussian_parameters(&filter_parameters);
-                        Some((resolution, Box::new(Filtered1p0::<Opaque>::new(exposure))))
-                    },
-                    _ => {
-                        Some((resolution, Box::new(Filtered1p0::<Opaque>::new(exposure))))
+                        let g = Gaussian::new(p.radius, p.alpha);
+                        Some(Box::new(Filtered1p0::<Opaque, Gaussian>::new(
+                            dimensions, exposure, g,
+                        )))
                     }
+                    _ => Some(Box::new(Unfiltered::<Opaque>::new(dimensions, exposure))),
                 }
             }
         } else {
             if alpha_transparency {
-                Some((
-                    resolution,
-                    Box::new(Unfiltered::<Transparent>::new(exposure)),
-                ))
+                Some(Box::new(Unfiltered::<Transparent>::new(dimensions, exposure)))
             } else {
-                Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))))
+                Some(Box::new(Unfiltered::<Opaque>::new(dimensions, exposure)))
             }
         }
     }
@@ -319,5 +336,20 @@ fn read_gaussian_parameters(value: &Value) -> GaussianParameters {
     let mut radius = 1.0;
     let mut alpha = 1.8;
 
-    GaussianParameters { radius, alpha }
+    let mut p = GaussianParameters { radius, alpha };
+
+    let value = match value {
+        Value::Object(value) => value,
+        _ => return p,
+    };
+
+    for (name, value) in value.iter() {
+        match name.as_ref() {
+            "radius" => p.radius = json::read_float(value),
+            "alpha" => p.alpha = json::read_float(value),
+            _ => (),
+        }
+    }
+
+    p
 }

@@ -14,12 +14,7 @@ pub struct View {
 
 impl View {
     pub fn new(camera: Box<dyn Camera>) -> View {
-        View {
-            camera,
-            num_samples_per_pixel: 1,
-            start_frame: 0,
-            num_frames: 1,
-        }
+        View { camera, num_samples_per_pixel: 1, start_frame: 0, num_frames: 1 }
     }
 }
 

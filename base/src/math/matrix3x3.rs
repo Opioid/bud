@@ -11,11 +11,7 @@ impl float3x3 {
     #[inline]
     pub fn identity() -> float3x3 {
         float3x3 {
-            r: [
-                float3::new(1.0, 0.0, 0.0),
-                float3::new(0.0, 1.0, 0.0),
-                float3::new(0.0, 0.0, 1.0),
-            ],
+            r: [float3::new(1.0, 0.0, 0.0), float3::new(0.0, 1.0, 0.0), float3::new(0.0, 0.0, 1.0)],
         }
     }
 
@@ -24,11 +20,7 @@ impl float3x3 {
         let s = a.sin();
 
         float3x3 {
-            r: [
-                float3::new(1.0, 0.0, 0.0),
-                float3::new(0.0, c, -s),
-                float3::new(0.0, s, c),
-            ],
+            r: [float3::new(1.0, 0.0, 0.0), float3::new(0.0, c, -s), float3::new(0.0, s, c)],
         }
     }
 
@@ -37,11 +29,7 @@ impl float3x3 {
         let s = a.sin();
 
         float3x3 {
-            r: [
-                float3::new(c, 0.0, s),
-                float3::new(0.0, 1.0, 0.0),
-                float3::new(-s, 0.0, c),
-            ],
+            r: [float3::new(c, 0.0, s), float3::new(0.0, 1.0, 0.0), float3::new(-s, 0.0, c)],
         }
     }
 
@@ -50,11 +38,7 @@ impl float3x3 {
         let s = a.sin();
 
         float3x3 {
-            r: [
-                float3::new(c, -s, 0.0),
-                float3::new(s, c, 0.0),
-                float3::new(0.0, 0.0, 1.0),
-            ],
+            r: [float3::new(c, -s, 0.0), float3::new(s, c, 0.0), float3::new(0.0, 0.0, 1.0)],
         }
     }
 

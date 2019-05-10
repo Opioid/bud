@@ -47,12 +47,7 @@ fn write_pixels_rle<W: Write>(stream: &mut W, image: &Float4) {
     let mut current_pixel = 0i32;
 
     for _ in 0..num_scanlines {
-        let mut rgbe = [
-            2u8,
-            2u8,
-            (scanline_width >> 8) as u8,
-            (scanline_width & 0xFF) as u8,
-        ];
+        let mut rgbe = [2u8, 2u8, (scanline_width >> 8) as u8, (scanline_width & 0xFF) as u8];
 
         stream.write(&rgbe).unwrap();
 
@@ -131,9 +126,7 @@ fn write_bytes_rle<W: Write>(stream: &mut W, data: &[u8]) {
 
             stream.write(&buffer[0..1]).unwrap();
 
-            stream
-                .write(&data[current..current + nonrun_count])
-                .unwrap();
+            stream.write(&data[current..current + nonrun_count]).unwrap();
 
             current += nonrun_count;
         }
@@ -180,11 +173,6 @@ fn float_to_rgbe(c: float3) -> [u8; 4] {
 
         v = f * 256.0 / v;
 
-        return [
-            (c.v[0] * v) as u8,
-            (c.v[1] * v) as u8,
-            (c.v[2] * v) as u8,
-            (e + 128) as u8,
-        ];
+        return [(c.v[0] * v) as u8, (c.v[1] * v) as u8, (c.v[2] * v) as u8, (e + 128) as u8];
     }
 }

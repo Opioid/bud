@@ -1,5 +1,5 @@
 use super::{Camera, CameraBase};
-use base::math::{self, float2, float3, int2};
+use base::math::{self, float2, float3, int2, int4};
 use json;
 use rendering::sensor::Sensor;
 use sampler::CameraSample;
@@ -32,7 +32,7 @@ pub struct Perspective {
 
 impl Perspective {
     pub fn new(resolution: int2, sensor: Box<dyn Sensor>) -> Perspective {
-        let mut p = Perspective {
+        Perspective {
             base: CameraBase::new(resolution, sensor),
             left_top: float3::identity(),
             d_x: float3::identity(),
@@ -40,12 +40,7 @@ impl Perspective {
             fov: math::degrees_to_radians(60.0),
             lens_radius: 0.0,
             focus_distance: 0.0,
-        };
-
-        let dimensions = p.sensor_dimensions();
-        p.base.sensor.resize(dimensions);
-
-        p
+        }
     }
 
     pub fn set_fov(&mut self, fov: f32) {
@@ -58,6 +53,10 @@ impl Perspective {
 
     pub fn set_focus(&mut self, focus: Focus) {
         self.focus_distance = focus.distance;
+    }
+
+    pub fn sensor_dimensions(resolution: int2) -> int2 {
+        resolution
     }
 }
 
@@ -127,6 +126,10 @@ impl Camera for Perspective {
         &mut (*self.base.sensor)
     }
 
+    fn view_bounds(&mut self, _view: u32) -> int4 {
+        int4::from_2_2(int2::new(0, 0), self.base.resolution - int2::new(1, 1))
+    }
+
     fn sensor_dimensions(&self) -> int2 {
         self.base.resolution
     }
@@ -160,11 +163,7 @@ fn load_lens(lens_value: &Value) -> Lens {
 }
 
 fn load_focus(focus_value: &Value) -> Focus {
-    let mut f = Focus {
-        point: float3::new(0.5, 0.5, 0.0),
-        distance: 0.0,
-        use_point: false,
-    };
+    let mut f = Focus { point: float3::new(0.5, 0.5, 0.0), distance: 0.0, use_point: false };
 
     let focus_value = match focus_value {
         Value::Object(focus_value) => focus_value,

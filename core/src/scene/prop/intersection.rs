@@ -11,10 +11,7 @@ pub struct Intersection {
 
 impl Intersection {
     pub fn new() -> Intersection {
-        Intersection {
-            prop: 0xFFFFFFFF,
-            geo: shape::Intersection::new(),
-        }
+        Intersection { prop: 0xFFFFFFFF, geo: shape::Intersection::new() }
     }
 
     pub fn material<'a>(&self, scene: &'a Scene, worker: &'a Worker) -> &'a dyn Material {

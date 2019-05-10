@@ -26,9 +26,7 @@ pub fn sample_disk_concentric(uv: float2) -> float2 {
 
 pub fn sample_hemisphere_cosine(uv: float2) -> float3 {
     let xy = sample_disk_concentric(uv);
-    let z = 0.0f32
-        .max(1.0 - xy.v[0] * xy.v[0] - xy.v[1] * xy.v[1])
-        .sqrt();
+    let z = 0.0f32.max(1.0 - xy.v[0] * xy.v[0] - xy.v[1] * xy.v[1]).sqrt();
 
     float3::new(xy.v[0], xy.v[1], z)
 }

@@ -10,11 +10,7 @@ pub struct GoldenRatio {
 
 impl GoldenRatio {
     pub fn new() -> GoldenRatio {
-        GoldenRatio {
-            base: SamplerBase::new(),
-            samples_2d: Vec::new(),
-            samples_1d: Vec::new(),
-        }
+        GoldenRatio { base: SamplerBase::new(), samples_2d: Vec::new(), samples_1d: Vec::new() }
     }
 
     fn generate_2d(&mut self, rng: &mut random::Generator, dimension: u32) {
@@ -57,13 +53,10 @@ impl Sampler for GoldenRatio {
             num_dimensions_1d,
         );
 
-        self.samples_2d.resize(
-            (self.base.num_samples * num_dimensions_2d) as usize,
-            float2::identity(),
-        );
+        self.samples_2d
+            .resize((self.base.num_samples * num_dimensions_2d) as usize, float2::identity());
 
-        self.samples_1d
-            .resize((self.base.num_samples * num_dimensions_1d) as usize, 0.0);
+        self.samples_1d.resize((self.base.num_samples * num_dimensions_1d) as usize, 0.0);
     }
 
     fn start_pixel(&mut self) {
@@ -93,10 +86,7 @@ impl Sampler for GoldenRatio {
     fn generate_sample_2d(&mut self, rng: &mut random::Generator, dimension: u32) -> float2 {
         let current;
         unsafe {
-            let current_ref = self
-                .base
-                .current_sample_2d
-                .get_unchecked_mut(dimension as usize);
+            let current_ref = self.base.current_sample_2d.get_unchecked_mut(dimension as usize);
             current = *current_ref;
             *current_ref += 1;
         }
@@ -111,10 +101,7 @@ impl Sampler for GoldenRatio {
     fn generate_sample_1d(&mut self, rng: &mut random::Generator, dimension: u32) -> f32 {
         let current;
         unsafe {
-            let current_ref = self
-                .base
-                .current_sample_1d
-                .get_unchecked_mut(dimension as usize);
+            let current_ref = self.base.current_sample_1d.get_unchecked_mut(dimension as usize);
             current = *current_ref;
             *current_ref += 1;
         }

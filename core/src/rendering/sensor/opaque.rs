@@ -8,23 +8,15 @@ pub struct Opaque {
 }
 
 impl TypedSensor for Opaque {
-    fn new(exposure: f32) -> Self {
+    fn new(dimensions: int2, exposure: f32) -> Self {
         Opaque {
-            base: SensorBase::new(exposure),
-            pixels: Vec::new(),
+            base: SensorBase::new(dimensions, exposure),
+            pixels: vec![float4::identity(); (dimensions.v[0] * dimensions.v[1]) as usize],
         }
     }
 
     fn has_alpha_transparency(&self) -> bool {
         false
-    }
-
-    fn resize(&mut self, dimensions: int2) {
-        self.base.dimensions = dimensions;
-        self.pixels.resize(
-            (dimensions.v[0] * dimensions.v[1]) as usize,
-            float4::identity(),
-        );
     }
 
     fn resolve(&self, target: &mut Float4) {

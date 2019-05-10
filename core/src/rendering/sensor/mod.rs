@@ -1,3 +1,4 @@
+pub mod filter;
 mod filtered;
 mod opaque;
 mod sensor;

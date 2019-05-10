@@ -1,11 +1,10 @@
 use super::driver::DriverBase;
 use base::chrono;
 use base::math::{float4, int2};
-use base::random;
 use base::thread;
 use exporting;
 use rendering::integrator::surface::Integrator;
-use sampler::{CameraSample, Sampler};
+use sampler::Sampler;
 use scene::prop::Intersection;
 use scene::{Ray, Scene};
 use std::time::Instant;
@@ -47,10 +46,7 @@ impl<'a> FinalFrame<'a> {
 
         self.render_frame(scene, view);
 
-        println!(
-            "Render time {} s",
-            chrono::duration_to_seconds(render_start.elapsed())
-        );
+        println!("Render time {} s", chrono::duration_to_seconds(render_start.elapsed()));
 
         let export_start = Instant::now();
 
@@ -62,16 +58,17 @@ impl<'a> FinalFrame<'a> {
             e.write(&self.base.target);
         }
 
-        println!(
-            "Export time {} s",
-            chrono::duration_to_seconds(export_start.elapsed())
-        );
+        println!("Export time {} s", chrono::duration_to_seconds(export_start.elapsed()));
     }
 
     fn render_frame(&mut self, scene: &Scene, view: &mut View) {
         let camera = &mut view.camera;
 
         camera.update();
+
+        let mut bounds = camera.view_bounds(0);
+        bounds.v[2] -= bounds.v[0];
+        bounds.v[3] -= bounds.v[1];
 
         loop {
             match self.base.tiles.pop() {
@@ -98,7 +95,7 @@ impl<'a> FinalFrame<'a> {
                                 if let Some(mut ray) = ray {
                                     let color = self.li(scene, &mut ray);
 
-                                    camera.sensor_mut().add_sample(&sample, color);
+                                    camera.sensor_mut().add_sample(&sample, color, bounds);
                                 }
                             }
                         }

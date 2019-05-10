@@ -29,20 +29,8 @@ pub fn offset_ray(p: float3, n: float3) -> float3 {
     );
 
     float3::new(
-        if p.v[0].abs() < ORIGIN {
-            p.v[0] + FLOAT_SCALE * n.v[0]
-        } else {
-            p_i.v[0]
-        },
-        if p.v[1].abs() < ORIGIN {
-            p.v[1] + FLOAT_SCALE * n.v[1]
-        } else {
-            p_i.v[1]
-        },
-        if p.v[2].abs() < ORIGIN {
-            p.v[2] + FLOAT_SCALE * n.v[2]
-        } else {
-            p_i.v[2]
-        },
+        if p.v[0].abs() < ORIGIN { p.v[0] + FLOAT_SCALE * n.v[0] } else { p_i.v[0] },
+        if p.v[1].abs() < ORIGIN { p.v[1] + FLOAT_SCALE * n.v[1] } else { p_i.v[1] },
+        if p.v[2].abs() < ORIGIN { p.v[2] + FLOAT_SCALE * n.v[2] } else { p_i.v[2] },
     )
 }

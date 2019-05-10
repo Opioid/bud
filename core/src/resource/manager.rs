@@ -6,9 +6,7 @@ pub struct Manager {
 
 impl Manager {
     pub fn new() -> Manager {
-        Manager {
-            file_system: FileSystem::new(),
-        }
+        Manager { file_system: FileSystem::new() }
     }
 
     pub fn file_system(&mut self) -> &mut FileSystem {

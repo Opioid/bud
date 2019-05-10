@@ -10,9 +10,7 @@ pub struct vec2<T> {
 impl<T: Copy + Zero + 'static> vec2<T> {
     #[inline]
     pub fn identity() -> vec2<T> {
-        vec2 {
-            v: [num::zero(), num::zero()],
-        }
+        vec2 { v: [num::zero(), num::zero()] }
     }
 
     #[inline]
@@ -27,18 +25,14 @@ impl<T: Copy + Zero + 'static> vec2<T> {
 
     #[inline]
     pub fn from<U: num::cast::AsPrimitive<T>>(other: vec2<U>) -> vec2<T> {
-        vec2 {
-            v: [other.v[0].as_(), other.v[1].as_()],
-        }
+        vec2 { v: [other.v[0].as_(), other.v[1].as_()] }
     }
 }
 
 impl vec2<i32> {
     #[inline]
     pub fn min(self, other: vec2<i32>) -> vec2<i32> {
-        vec2 {
-            v: [self.v[0].min(other.v[0]), self.v[1].min(other.v[1])],
-        }
+        vec2 { v: [self.v[0].min(other.v[0]), self.v[1].min(other.v[1])] }
     }
 }
 
@@ -50,9 +44,7 @@ where
 
     #[inline]
     fn add(self, other: vec2<T>) -> vec2<T> {
-        vec2 {
-            v: [self.v[0] + other.v[0], self.v[1] + other.v[1]],
-        }
+        vec2 { v: [self.v[0] + other.v[0], self.v[1] + other.v[1]] }
     }
 }
 
@@ -61,9 +53,7 @@ impl ops::Sub<f32> for vec2<f32> {
 
     #[inline]
     fn sub(self, s: f32) -> vec2<f32> {
-        vec2 {
-            v: [self.v[0] - s, self.v[1] - s],
-        }
+        vec2 { v: [self.v[0] - s, self.v[1] - s] }
     }
 }
 
@@ -75,9 +65,7 @@ where
 
     #[inline]
     fn sub(self, other: vec2<T>) -> vec2<T> {
-        vec2 {
-            v: [self.v[0] - other.v[0], self.v[1] - other.v[1]],
-        }
+        vec2 { v: [self.v[0] - other.v[0], self.v[1] - other.v[1]] }
     }
 }
 
@@ -86,9 +74,7 @@ impl ops::Mul<vec2<f32>> for f32 {
 
     #[inline]
     fn mul(self, v: vec2<f32>) -> vec2<f32> {
-        vec2 {
-            v: [self * v.v[0], self * v.v[1]],
-        }
+        vec2 { v: [self * v.v[0], self * v.v[1]] }
     }
 }
 

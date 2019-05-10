@@ -10,11 +10,7 @@ impl Options {
             Options::help();
         }
 
-        let mut result = Options {
-            take: String::new(),
-            mounts: Vec::new(),
-            threads: 1,
-        };
+        let mut result = Options { take: String::new(), mounts: Vec::new(), threads: 1 };
 
         let mut i = 1;
 

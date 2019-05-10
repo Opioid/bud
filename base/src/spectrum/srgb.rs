@@ -14,18 +14,9 @@ pub fn linear_to_gamma(c: f32) -> f32 {
 }
 
 pub fn linear_to_gamma_3(c: float3) -> float3 {
-    float3::new(
-        linear_to_gamma(c.v[0]),
-        linear_to_gamma(c.v[1]),
-        linear_to_gamma(c.v[2]),
-    )
+    float3::new(linear_to_gamma(c.v[0]), linear_to_gamma(c.v[1]), linear_to_gamma(c.v[2]))
 }
 
 pub fn linear_to_gamma_4(c: float4) -> float4 {
-    float4::new(
-        linear_to_gamma(c.v[0]),
-        linear_to_gamma(c.v[1]),
-        linear_to_gamma(c.v[2]),
-        c.v[3],
-    )
+    float4::new(linear_to_gamma(c.v[0]), linear_to_gamma(c.v[1]), linear_to_gamma(c.v[2]), c.v[3])
 }

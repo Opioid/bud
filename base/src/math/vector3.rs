@@ -11,9 +11,7 @@ pub struct vec3<T> {
 impl<T: Copy + Zero + ops::Sub<Output = T> + ops::Mul<Output = T> + 'static> vec3<T> {
     #[inline]
     pub fn identity() -> vec3<T> {
-        vec3 {
-            v: [num::zero(), num::zero(), num::zero()],
-        }
+        vec3 { v: [num::zero(), num::zero(), num::zero()] }
     }
 
     #[inline]
@@ -23,9 +21,7 @@ impl<T: Copy + Zero + ops::Sub<Output = T> + ops::Mul<Output = T> + 'static> vec
 
     #[inline]
     pub fn from_2(v: vec2<T>, z: T) -> vec3<T> {
-        vec3 {
-            v: [v.v[0], v.v[1], z],
-        }
+        vec3 { v: [v.v[0], v.v[1], z] }
     }
 
     #[inline]
@@ -35,9 +31,7 @@ impl<T: Copy + Zero + ops::Sub<Output = T> + ops::Mul<Output = T> + 'static> vec
 
     #[inline]
     pub fn from<U: num::cast::AsPrimitive<T>>(other: vec3<U>) -> vec3<T> {
-        vec3 {
-            v: [other.v[0].as_(), other.v[1].as_(), other.v[2].as_()],
-        }
+        vec3 { v: [other.v[0].as_(), other.v[1].as_(), other.v[2].as_()] }
     }
 
     #[inline]
@@ -82,13 +76,7 @@ impl ops::Add<float3> for float3 {
 
     #[inline]
     fn add(self, other: float3) -> float3 {
-        float3 {
-            v: [
-                self.v[0] + other.v[0],
-                self.v[1] + other.v[1],
-                self.v[2] + other.v[2],
-            ],
-        }
+        float3 { v: [self.v[0] + other.v[0], self.v[1] + other.v[1], self.v[2] + other.v[2]] }
     }
 }
 
@@ -97,13 +85,7 @@ impl ops::Sub<float3> for float3 {
 
     #[inline]
     fn sub(self, other: float3) -> float3 {
-        float3 {
-            v: [
-                self.v[0] - other.v[0],
-                self.v[1] - other.v[1],
-                self.v[2] - other.v[2],
-            ],
-        }
+        float3 { v: [self.v[0] - other.v[0], self.v[1] - other.v[1], self.v[2] - other.v[2]] }
     }
 }
 
@@ -112,9 +94,7 @@ impl ops::Neg for float3 {
 
     #[inline]
     fn neg(self) -> float3 {
-        float3 {
-            v: [-self.v[0], -self.v[1], -self.v[2]],
-        }
+        float3 { v: [-self.v[0], -self.v[1], -self.v[2]] }
     }
 }
 
@@ -123,9 +103,7 @@ impl ops::Mul<vec3<f32>> for f32 {
 
     #[inline]
     fn mul(self, v: vec3<f32>) -> vec3<f32> {
-        vec3 {
-            v: [self * v.v[0], self * v.v[1], self * v.v[2]],
-        }
+        vec3 { v: [self * v.v[0], self * v.v[1], self * v.v[2]] }
     }
 }
 
@@ -134,9 +112,7 @@ impl ops::Div<f32> for vec3<f32> {
 
     #[inline]
     fn div(self, s: f32) -> vec3<f32> {
-        vec3 {
-            v: [self.v[0] / s, self.v[1] / s, self.v[2] / s],
-        }
+        vec3 { v: [self.v[0] / s, self.v[1] / s, self.v[2] / s] }
     }
 }
 

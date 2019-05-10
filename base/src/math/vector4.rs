@@ -15,23 +15,17 @@ where
 {
     #[inline]
     pub fn identity() -> vec4<T> {
-        vec4 {
-            v: [num::zero(), num::zero(), num::zero(), num::zero()],
-        }
+        vec4 { v: [num::zero(), num::zero(), num::zero(), num::zero()] }
     }
 
     #[inline]
     pub fn from_2_2(a: vec2<T>, b: vec2<T>) -> vec4<T> {
-        vec4 {
-            v: [a.v[0], a.v[1], b.v[0], b.v[1]],
-        }
+        vec4 { v: [a.v[0], a.v[1], b.v[0], b.v[1]] }
     }
 
     #[inline]
     pub fn from_3(v: vec3<T>, w: T) -> vec4<T> {
-        vec4 {
-            v: [v.v[0], v.v[1], v.v[2], w],
-        }
+        vec4 { v: [v.v[0], v.v[1], v.v[2], w] }
     }
 
     #[inline]
@@ -41,9 +35,12 @@ where
 
     #[inline]
     pub fn xyz(self) -> vec3<T> {
-        vec3 {
-            v: [self.v[0], self.v[1], self.v[2]],
-        }
+        vec3 { v: [self.v[0], self.v[1], self.v[2]] }
+    }
+
+    #[inline]
+    pub fn xy(self) -> vec2<T> {
+        vec2 { v: [self.v[0], self.v[1]] }
     }
 }
 
@@ -62,9 +59,7 @@ impl ops::Mul<vec4<f32>> for f32 {
 
     #[inline]
     fn mul(self, v: vec4<f32>) -> vec4<f32> {
-        vec4 {
-            v: [self * v.v[0], self * v.v[1], self * v.v[2], self * v.v[3]],
-        }
+        vec4 { v: [self * v.v[0], self * v.v[1], self * v.v[2], self * v.v[3]] }
     }
 }
 
@@ -73,9 +68,7 @@ impl ops::Div<f32> for vec4<f32> {
 
     #[inline]
     fn div(self, s: f32) -> vec4<f32> {
-        vec4 {
-            v: [self.v[0] / s, self.v[1] / s, self.v[2] / s, self.v[3] / s],
-        }
+        vec4 { v: [self.v[0] / s, self.v[1] / s, self.v[2] / s, self.v[3] / s] }
     }
 }
 

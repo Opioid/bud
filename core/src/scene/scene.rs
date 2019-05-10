@@ -10,10 +10,7 @@ pub struct Scene<'a> {
 
 impl<'a> Scene<'a> {
     pub fn new() -> Scene<'a> {
-        Scene {
-            finite_props: Vec::new(),
-            infinite_props: Vec::new(),
-        }
+        Scene { finite_props: Vec::new(), infinite_props: Vec::new() }
     }
 
     pub fn create_prop(&mut self, shape: &'a dyn Shape) -> &mut Prop<'a> {
@@ -65,10 +62,6 @@ impl<'a> Scene<'a> {
     }
 
     pub fn material(&self, prop: u32, part: u32) -> &dyn Material {
-        unsafe {
-            self.finite_props
-                .get_unchecked(prop as usize)
-                .material(part)
-        }
+        unsafe { self.finite_props.get_unchecked(prop as usize).material(part) }
     }
 }

@@ -53,10 +53,7 @@ fn main() {
 
     let loading_start = Instant::now();
 
-    let stream = scene_loader
-        .resource_manager()
-        .file_system()
-        .read_stream(&options.take);
+    let stream = scene_loader.resource_manager().file_system().read_stream(&options.take);
 
     if let Err(err) = stream {
         println!("Loading take \"{}\": {}", options.take, err.message());
@@ -77,18 +74,11 @@ fn main() {
     let mut scene = Scene::new();
 
     if let Err(err) = scene_loader.load(&take.scene_filename, &mut scene) {
-        println!(
-            "Loading take \"{}\": {}",
-            take.scene_filename,
-            err.message()
-        );
+        println!("Loading take \"{}\": {}", take.scene_filename, err.message());
         std::process::exit(1);
     }
 
-    println!(
-        "Loading time {} s",
-        chrono::duration_to_seconds(loading_start.elapsed())
-    );
+    println!("Loading time {} s", chrono::duration_to_seconds(loading_start.elapsed()));
 
     println!("Rendering...");
 
@@ -101,13 +91,7 @@ fn main() {
 
     //   thread_pool.run_parallel();
 
-    println!(
-        "Total render time {} s",
-        chrono::duration_to_seconds(rendering_start.elapsed())
-    );
+    println!("Total render time {} s", chrono::duration_to_seconds(rendering_start.elapsed()));
 
-    println!(
-        "Total elapsed time {} s",
-        chrono::duration_to_seconds(total_start.elapsed())
-    );
+    println!("Total elapsed time {} s", chrono::duration_to_seconds(total_start.elapsed()));
 }

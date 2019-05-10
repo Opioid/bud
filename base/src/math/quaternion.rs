@@ -6,11 +6,7 @@ pub struct Quaternion(pub float4);
 impl Quaternion {
     #[inline]
     pub fn identity() -> Quaternion {
-        Quaternion {
-            0: float4 {
-                v: [0.0, 0.0, 0.0, 1.0],
-            },
-        }
+        Quaternion { 0: float4 { v: [0.0, 0.0, 0.0, 1.0] } }
     }
 
     #[inline]
@@ -26,11 +22,7 @@ impl Quaternion {
             let t1 = (m.r[0].v[2] - m.r[2].v[0]) * s;
             let t2 = (m.r[1].v[0] - m.r[0].v[1]) * s;
 
-            return Quaternion {
-                0: float4 {
-                    v: [t0, t1, t2, t3],
-                },
-            };
+            return Quaternion { 0: float4 { v: [t0, t1, t2, t3] } };
         } else {
             let i = match m.r[0].v[0] < m.r[1].v[1] {
                 true => match m.r[1].v[1] < m.r[2].v[2] {

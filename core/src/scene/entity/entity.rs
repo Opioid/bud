@@ -7,9 +7,7 @@ pub struct Entity {
 
 impl Entity {
     pub fn new() -> Entity {
-        Entity {
-            world_transformation: ComposedTransformation::new(),
-        }
+        Entity { world_transformation: ComposedTransformation::new() }
     }
 
     pub fn transformation_at(&self, time: u64) -> ComposedTransformation {

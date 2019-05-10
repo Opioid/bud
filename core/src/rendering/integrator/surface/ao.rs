@@ -1,7 +1,7 @@
 use super::{Factory, Integrator};
 use base::math::{self, float3, float4};
 use rendering::Worker;
-use sampler::{GoldenRatio, Random, Sampler};
+use sampler::{GoldenRatio, /* Random, */ Sampler};
 use scene::prop::Intersection;
 use scene::{Ray, Scene};
 
@@ -19,17 +19,13 @@ pub struct Ao {
 
 impl Ao {
     fn new(settings: Settings) -> Ao {
-        Ao {
-            settings,
-            sampler: GoldenRatio::new(),
-        }
+        Ao { settings, sampler: GoldenRatio::new() }
     }
 }
 
 impl Integrator for Ao {
     fn prepare(&mut self, num_samples_per_pixel: u32) {
-        self.sampler
-            .resize(num_samples_per_pixel, self.settings.num_samples, 1, 1);
+        self.sampler.resize(num_samples_per_pixel, self.settings.num_samples, 1, 1);
     }
 
     fn start_pixel(&mut self) {
@@ -79,12 +75,7 @@ pub struct AoFactory {
 
 impl AoFactory {
     pub fn new(num_samples: u32, radius: f32) -> AoFactory {
-        AoFactory {
-            settings: Settings {
-                num_samples,
-                radius,
-            },
-        }
+        AoFactory { settings: Settings { num_samples, radius } }
     }
 }
 

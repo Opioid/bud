@@ -16,10 +16,7 @@ fn intersect(
 
     let n = (p - transformation.position).normalized();
 
-    let xyz = transformation
-        .rotation
-        .transform_vector_transposed(n)
-        .normalized();
+    let xyz = transformation.rotation.transform_vector_transposed(n).normalized();
 
     let phi = -xyz.v[0].atan2(xyz.v[2]) + math::PI;
     let theta = xyz.v[1].acos();

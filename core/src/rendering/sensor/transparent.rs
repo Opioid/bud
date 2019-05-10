@@ -14,10 +14,13 @@ pub struct Transparent {
 }
 
 impl TypedSensor for Transparent {
-    fn new(exposure: f32) -> Self {
+    fn new(dimensions: int2, exposure: f32) -> Self {
         Transparent {
-            base: SensorBase::new(exposure),
-            pixels: Vec::new(),
+            base: SensorBase::new(dimensions, exposure),
+            pixels: vec![
+                Pixel { color: float4::identity(), weight_sum: 0.0 };
+                (dimensions.v[0] * dimensions.v[1]) as usize
+            ],
         }
     }
 
@@ -25,26 +28,13 @@ impl TypedSensor for Transparent {
         true
     }
 
-    fn resize(&mut self, dimensions: int2) {
-        self.base.dimensions = dimensions;
-        self.pixels.resize(
-            (dimensions.v[0] * dimensions.v[1]) as usize,
-            Pixel {
-                color: float4::identity(),
-                weight_sum: 0.0,
-            },
-        );
-    }
-
     fn resolve(&self, target: &mut Float4) {
         let exposure_factor = self.base.exposure_factor;
 
         for (i, pixel) in self.pixels.iter().enumerate() {
             let color = pixel.color / pixel.weight_sum;
-            target.set_by_index(
-                i as i32,
-                float4::from_3(exposure_factor * color.xyz(), color.v[3]),
-            );
+            target
+                .set_by_index(i as i32, float4::from_3(exposure_factor * color.xyz(), color.v[3]));
         }
     }
 

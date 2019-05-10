@@ -31,13 +31,7 @@ impl image::Writer for Writer {
         let byte_slice =
             unsafe { slice::from_raw_parts(srgb.as_ptr() as *const u8, (num_pixels * 3) as usize) };
 
-        write_u8(
-            stream,
-            byte_slice,
-            d.v[0] as u32,
-            d.v[1] as u32,
-            ColorType::Truecolor,
-        );
+        write_u8(stream, byte_slice, d.v[0] as u32, d.v[1] as u32, ColorType::Truecolor);
     }
 }
 
@@ -66,13 +60,7 @@ impl image::Writer for WriterAlpha {
         let byte_slice =
             unsafe { slice::from_raw_parts(srgb.as_ptr() as *const u8, (num_pixels * 4) as usize) };
 
-        write_u8(
-            stream,
-            byte_slice,
-            d.v[0] as u32,
-            d.v[1] as u32,
-            ColorType::TruecolorAlpha,
-        );
+        write_u8(stream, byte_slice, d.v[0] as u32, d.v[1] as u32, ColorType::TruecolorAlpha);
     }
 }
 
@@ -87,18 +75,11 @@ mod crc32 {
 
     impl Crc32 {
         pub fn new() -> Crc32 {
-            let mut c = Crc32 {
-                table: [0; 256],
-                value: 0xffffffff,
-            };
+            let mut c = Crc32 { table: [0; 256], value: 0xffffffff };
             for i in 0..256 {
                 let mut v = i as u32;
                 for _ in 0..8 {
-                    v = if v & 1 != 0 {
-                        CRC32_INITIAL ^ (v >> 1)
-                    } else {
-                        v >> 1
-                    }
+                    v = if v & 1 != 0 { CRC32_INITIAL ^ (v >> 1) } else { v >> 1 }
                 }
                 c.table[i] = v;
             }
@@ -193,11 +174,7 @@ pub fn write_u8<W: Write>(stream: &mut W, image: &[u8], w: u32, h: u32, ct: Colo
             span += row_bytes;
         }
 
-        write_chunk(
-            stream,
-            b"IDAT",
-            &deflate::compress_to_vec_zlib(&raw_data, 6),
-        );
+        write_chunk(stream, b"IDAT", &deflate::compress_to_vec_zlib(&raw_data, 6));
     }
 
     write_chunk(stream, b"IEND", &[]);

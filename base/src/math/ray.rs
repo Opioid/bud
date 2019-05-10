@@ -11,12 +11,7 @@ pub struct Ray {
 
 impl Ray {
     pub fn new(org: float3, dir: float3, min_t: f32, max_t: f32) -> Ray {
-        Ray {
-            org,
-            dir,
-            min_t,
-            max_t,
-        }
+        Ray { org, dir, min_t, max_t }
     }
 
     pub fn point(&self, t: f32) -> float3 {

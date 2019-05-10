@@ -4,8 +4,6 @@ use image::Float4;
 use rendering::TileQueue;
 use rendering::Worker;
 use scene::camera::Camera;
-use scene::Scene;
-use take::View;
 
 pub struct DriverBase<'a> {
     pub thread_pool: &'a thread::Pool,
@@ -19,7 +17,11 @@ impl<'a> DriverBase<'a> {
         DriverBase {
             thread_pool,
             worker: Worker::new(),
-            tiles: TileQueue::new(camera.resolution(), int2::new(32, 32), 0),
+            tiles: TileQueue::new(
+                camera.resolution(),
+                int2::new(32, 32),
+                camera.sensor().filter_radius_int(),
+            ),
             target: Float4::new(camera.sensor_dimensions()),
         }
     }
