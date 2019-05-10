@@ -172,13 +172,23 @@ impl Loader {
                 return Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))));
             }
 
+            let filter_parameters = filter_parameters.unwrap();
+
             if alpha_transparency {
                 Some((
                     resolution,
                     Box::new(Filtered1p0::<Transparent>::new(exposure)),
                 ))
             } else {
-                Some((resolution, Box::new(Filtered1p0::<Opaque>::new(exposure))))
+                match type_name {
+                    "Gaussian" => {
+                        let p = read_gaussian_parameters(&filter_parameters);
+                        Some((resolution, Box::new(Filtered1p0::<Opaque>::new(exposure))))
+                    },
+                    _ => {
+                        Some((resolution, Box::new(Filtered1p0::<Opaque>::new(exposure))))
+                    }
+                }
             }
         } else {
             if alpha_transparency {
@@ -298,4 +308,16 @@ impl Loader {
 
         None
     }
+}
+
+struct GaussianParameters {
+    pub radius: f32,
+    pub alpha: f32,
+}
+
+fn read_gaussian_parameters(value: &Value) -> GaussianParameters {
+    let mut radius = 1.0;
+    let mut alpha = 1.8;
+
+    GaussianParameters { radius, alpha }
 }
