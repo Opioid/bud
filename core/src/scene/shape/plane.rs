@@ -33,6 +33,10 @@ impl Shape for Plane {
             intersection.t = t;
             intersection.b = b;
             intersection.n = normal;
+            intersection.uv.v[0] = t.dot(p) * transformation.scale.v[0];
+            intersection.uv.v[1] = b.dot(p) * transformation.scale.v[1];
+
+            intersection.part = 0;
 
             ray.ray.max_t = hit_t;
             return true;

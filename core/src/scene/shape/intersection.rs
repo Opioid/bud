@@ -1,4 +1,4 @@
-use base::math::float3;
+use base::math::{float2, float3};
 use scene;
 
 pub struct Intersection {
@@ -13,6 +13,8 @@ pub struct Intersection {
     pub b: float3,
     pub n: float3,
 
+    pub uv: float2,
+
     pub part: u32,
 }
 
@@ -24,6 +26,7 @@ impl Intersection {
             t: float3::identity(),
             b: float3::identity(),
             n: float3::identity(),
+            uv: float2::identity(),
             part: 0,
         }
     }
