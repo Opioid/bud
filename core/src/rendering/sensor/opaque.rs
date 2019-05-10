@@ -39,7 +39,7 @@ impl TypedSensor for Opaque {
     fn add_pixel(&mut self, pixel: int2, color: float4, weight: f32) {
         let i = pixel.v[1] * self.base.dimensions.v[0] + pixel.v[0];
 
-        let value = float4::from_3(color.xyz(), weight);
+        let value = float4::from_3(weight * color.xyz(), weight);
 
         unsafe {
             *self.pixels.get_unchecked_mut(i as usize) += value;

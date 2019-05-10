@@ -17,6 +17,8 @@ impl SensorBase {
 }
 
 pub trait Sensor {
+    fn has_alpha_transparency(&self) -> bool;
+    
     fn resize(&mut self, dimensions: int2);
 
     fn resolve(&self, target: &mut Float4);
@@ -25,8 +27,6 @@ pub trait Sensor {
 }
 
 pub trait TypedSensor {
-    //   type Type;
-
     fn new(exposure: f32) -> Self;
 
     fn has_alpha_transparency(&self) -> bool;

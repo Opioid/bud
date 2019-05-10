@@ -8,7 +8,7 @@ use image;
 use json;
 use rendering::integrator::surface::AoFactory;
 use rendering::integrator::surface::Factory as SurfaceFactory;
-use rendering::sensor::{Opaque, Sensor, Unfiltered};
+use rendering::sensor::{Opaque, Transparent, Unfiltered, Sensor};
 use sampler::Factory as SamplerFactory;
 use sampler::GoldenRatioFactory;
 use sampler::RandomFactory;
@@ -81,7 +81,7 @@ impl Loader {
         }
 
         if take.exporters.is_empty() {
-            let writer = image::encoding::rgbe::Writer {};
+            let writer = image::encoding::png::Writer {};
             take.exporters.push(Box::new(exporting::ImageSequence::new(
                 "output_".to_string(),
                 writer,
@@ -135,7 +135,7 @@ impl Loader {
 
         let mut resolution = int2::identity();
         let mut exposure = 0.0;
-        let mut alpha_transparency;
+        let mut alpha_transparency = false;
 
         for (name, value) in sensor_value.iter() {
             match name.as_ref() {
@@ -145,8 +145,12 @@ impl Loader {
                 _ => (),
             }
         }
-
-        Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))))
+        
+        if alpha_transparency {
+            Some((resolution, Box::new(Unfiltered::<Transparent>::new(exposure))))
+        } else {
+             Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))))
+        }
     }
 
     fn load_exporters(export_value: &Value, view: &mut View) -> Vec<Box<dyn exporting::Sink>> {
@@ -171,11 +175,19 @@ impl Loader {
                             )));
                         }
                         _ => {
-                            let writer = image::encoding::png::Writer {};
-                            exporters.push(Box::new(exporting::ImageSequence::new(
-                                "output_".to_string(),
-                                writer,
-                            )));
+                            let alpha_transparency = view.camera.sensor().has_alpha_transparency();
+
+                            if true == alpha_transparency {
+                                                              exporters.push(Box::new(exporting::ImageSequence::new(
+                                    "output_".to_string(),
+                                    image::encoding::png::WriterAlpha {},
+                                )));
+                            } else {
+                                exporters.push(Box::new(exporting::ImageSequence::new(
+                                    "output_".to_string(),
+                                    image::encoding::png::Writer {},
+                                )));
+                            }
                         }
                     }
                 }

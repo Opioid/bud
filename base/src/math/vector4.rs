@@ -57,6 +57,28 @@ impl<T: Copy + ops::AddAssign> ops::AddAssign for vec4<T> {
     }
 }
 
+impl ops::Mul<vec4<f32>> for f32 {
+    type Output = vec4<f32>;
+
+    #[inline]
+    fn mul(self, v: vec4<f32>) -> vec4<f32> {
+        vec4 {
+            v: [self * v.v[0], self * v.v[1], self * v.v[2], self * v.v[3]],
+        }
+    }
+}
+
+impl ops::Div<f32> for float4 {
+    type Output = float4;
+
+    #[inline]
+    fn div(self, s: f32) -> float4 {
+        float4 {
+            v: [self.v[0] / s, self.v[1] / s, self.v[2] / s, self.v[3] / s],
+        }
+    }
+}
+
 #[allow(non_camel_case_types)]
 pub type byte4 = vec4<u8>;
 

@@ -22,6 +22,10 @@ impl<T> Sensor for Unfiltered<T>
 where
     T: TypedSensor,
 {
+    fn has_alpha_transparency(&self) -> bool {
+        self.base.has_alpha_transparency()
+    }
+    
     fn resize(&mut self, dimensions: int2) {
         self.base.resize(dimensions)
     }
