@@ -8,7 +8,7 @@ use image;
 use json;
 use rendering::integrator::surface::AoFactory;
 use rendering::integrator::surface::Factory as SurfaceFactory;
-use rendering::sensor::{Opaque, Transparent, Unfiltered, Sensor};
+use rendering::sensor::{Opaque, Sensor, Transparent, Unfiltered};
 use sampler::Factory as SamplerFactory;
 use sampler::GoldenRatioFactory;
 use sampler::RandomFactory;
@@ -145,11 +145,14 @@ impl Loader {
                 _ => (),
             }
         }
-        
+
         if alpha_transparency {
-            Some((resolution, Box::new(Unfiltered::<Transparent>::new(exposure))))
+            Some((
+                resolution,
+                Box::new(Unfiltered::<Transparent>::new(exposure)),
+            ))
         } else {
-             Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))))
+            Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))))
         }
     }
 
@@ -178,7 +181,7 @@ impl Loader {
                             let alpha_transparency = view.camera.sensor().has_alpha_transparency();
 
                             if true == alpha_transparency {
-                                                              exporters.push(Box::new(exporting::ImageSequence::new(
+                                exporters.push(Box::new(exporting::ImageSequence::new(
                                     "output_".to_string(),
                                     image::encoding::png::WriterAlpha {},
                                 )));

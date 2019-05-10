@@ -55,7 +55,7 @@ pub trait Camera {
     fn generate_ray(&self, sample: &CameraSample, frame: u32) -> Option<Ray>;
 
     fn sensor(&self) -> &dyn Sensor;
-    
+
     fn sensor_mut(&mut self) -> &mut dyn Sensor;
 
     fn sensor_dimensions(&self) -> int2;

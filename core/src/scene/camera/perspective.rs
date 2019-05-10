@@ -115,10 +115,10 @@ impl Camera for Perspective {
         Some(Ray::new(origin_w, direction_w, 0.0, scene::RAY_MAX_T, time))
     }
 
-    fn sensor(&self) -> & dyn Sensor {
+    fn sensor(&self) -> &dyn Sensor {
         &(*self.base.sensor)
     }
-    
+
     fn sensor_mut(&mut self) -> &mut dyn Sensor {
         &mut (*self.base.sensor)
     }

@@ -68,12 +68,12 @@ impl ops::Mul<vec4<f32>> for f32 {
     }
 }
 
-impl ops::Div<f32> for float4 {
-    type Output = float4;
+impl ops::Div<f32> for vec4<f32> {
+    type Output = vec4<f32>;
 
     #[inline]
-    fn div(self, s: f32) -> float4 {
-        float4 {
+    fn div(self, s: f32) -> vec4<f32> {
+        vec4 {
             v: [self.v[0] / s, self.v[1] / s, self.v[2] / s, self.v[3] / s],
         }
     }

@@ -29,7 +29,10 @@ impl TypedSensor for Transparent {
         self.base.dimensions = dimensions;
         self.pixels.resize(
             (dimensions.v[0] * dimensions.v[1]) as usize,
-            Pixel{ color: float4::identity(), weight_sum: 0.0 },
+            Pixel {
+                color: float4::identity(),
+                weight_sum: 0.0,
+            },
         );
     }
 
@@ -38,7 +41,10 @@ impl TypedSensor for Transparent {
 
         for (i, pixel) in self.pixels.iter().enumerate() {
             let color = pixel.color / pixel.weight_sum;
-            target.set_by_index(i as i32, float4::from_3(exposure_factor * color.xyz(), color.v[3]));
+            target.set_by_index(
+                i as i32,
+                float4::from_3(exposure_factor * color.xyz(), color.v[3]),
+            );
         }
     }
 
