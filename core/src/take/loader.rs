@@ -8,7 +8,7 @@ use image;
 use json;
 use rendering::integrator::surface::AoFactory;
 use rendering::integrator::surface::Factory as SurfaceFactory;
-use rendering::sensor::{Opaque, Sensor, Transparent, Unfiltered};
+use rendering::sensor::{Filtered1p0, Opaque, Sensor, Transparent, Unfiltered};
 use sampler::Factory as SamplerFactory;
 use sampler::GoldenRatioFactory;
 use sampler::RandomFactory;
@@ -133,26 +133,62 @@ impl Loader {
     fn load_sensor(sensor_value: &Value) -> Option<(int2, Box<dyn Sensor>)> {
         let sensor_value = sensor_value.as_object()?;
 
-        let mut resolution = int2::identity();
-        let mut exposure = 0.0;
         let mut alpha_transparency = false;
+        let mut exposure = 0.0;
+        let mut filter_value = None;
+        let mut resolution = int2::identity();
 
         for (name, value) in sensor_value.iter() {
             match name.as_ref() {
-                "resolution" => resolution = json::read_int2(value),
-                "exposure" => exposure = json::read_float(value),
                 "alpha_transparency" => alpha_transparency = value.as_bool().unwrap(),
+                "exposure" => exposure = json::read_float(value),
+                "filter" => filter_value = Some(value),
+                "resolution" => resolution = json::read_int2(value),
                 _ => (),
             }
         }
 
-        if alpha_transparency {
-            Some((
-                resolution,
-                Box::new(Unfiltered::<Transparent>::new(exposure)),
-            ))
+        if let Some(filter_value) = filter_value {
+            let filter_value = match filter_value {
+                Value::Object(filter_value) => filter_value,
+                _ => return Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure)))),
+            };
+
+            let mut type_name = "";
+            let mut filter_parameters = None;
+
+            for (name, value) in filter_value {
+                match name.as_ref() {
+                    "Gaussian" => {
+                        type_name = name;
+                        filter_parameters = Some(value);
+                        break;
+                    }
+                    _ => (),
+                }
+            }
+
+            if filter_parameters.is_none() {
+                return Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))));
+            }
+
+            if alpha_transparency {
+                Some((
+                    resolution,
+                    Box::new(Filtered1p0::<Transparent>::new(exposure)),
+                ))
+            } else {
+                Some((resolution, Box::new(Filtered1p0::<Opaque>::new(exposure))))
+            }
         } else {
-            Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))))
+            if alpha_transparency {
+                Some((
+                    resolution,
+                    Box::new(Unfiltered::<Transparent>::new(exposure)),
+                ))
+            } else {
+                Some((resolution, Box::new(Unfiltered::<Opaque>::new(exposure))))
+            }
         }
     }
 

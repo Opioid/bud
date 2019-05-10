@@ -145,6 +145,8 @@ pub enum ColorType {
     TruecolorAlpha = 6,
 }
 
+// Based on
+// https://github.com/ideasman42/png-encode-mini-rs
 // Write RGBA pixels to uncompressed PNG.
 pub fn write_u8<W: Write>(stream: &mut W, image: &[u8], w: u32, h: u32, ct: ColorType) {
     fn write_chunk<W: Write>(stream: &mut W, png_tag: &[u8; 4], data: &[u8]) {
