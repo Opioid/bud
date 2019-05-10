@@ -1,6 +1,6 @@
 use super::Intersection;
 use super::Shape;
-use base::math::{self, float3};
+use base::math::{self, float2, float3};
 use scene::entity::ComposedTransformation;
 use scene::Ray;
 
@@ -35,6 +35,7 @@ fn intersect(
     intersection.t = t;
     intersection.b = t.cross(n);
     intersection.n = n;
+    intersection.uv = float2::new(phi * (0.5 * math::PI_INV), theta * math::PI_INV)
 }
 
 impl Shape for Sphere {
