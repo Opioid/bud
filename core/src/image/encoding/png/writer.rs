@@ -31,7 +31,7 @@ impl image::Writer for Writer {
         let byte_slice =
             unsafe { slice::from_raw_parts(srgb.as_ptr() as *const u8, (num_pixels * 3) as usize) };
 
-        write_rgba_from_u8(
+        write_u8(
             stream,
             byte_slice,
             d.v[0] as u32,
@@ -66,7 +66,7 @@ impl image::Writer for WriterAlpha {
         let byte_slice =
             unsafe { slice::from_raw_parts(srgb.as_ptr() as *const u8, (num_pixels * 4) as usize) };
 
-        write_rgba_from_u8(
+        write_u8(
             stream,
             byte_slice,
             d.v[0] as u32,
@@ -135,22 +135,6 @@ fn u32_to_u8_be(v: u32) -> [u8; 4] {
     [(v >> 24) as u8, (v >> 16) as u8, (v >> 8) as u8, v as u8]
 }
 
-pub fn zlib_compress(data: &[u8]) -> Vec<u8> {
-    let mut raw_data = Vec::with_capacity(data.len());
-
-    // header
-    raw_data.extend(&[120, 1]);
-
-    raw_data.extend(deflate::compress_to_vec(&data, 6).as_slice());
-
-    // adler check value
-    let adler = miniz_oxide::mz_adler32_oxide(1, &data);
-
-    raw_data.extend(&u32_to_u8_be(adler));
-
-    raw_data
-}
-
 #[derive(Copy, Clone)]
 #[repr(u8)]
 pub enum ColorType {
@@ -162,21 +146,21 @@ pub enum ColorType {
 }
 
 // Write RGBA pixels to uncompressed PNG.
-pub fn write_rgba_from_u8<W: Write>(file: &mut W, image: &[u8], w: u32, h: u32, ct: ColorType) {
-    fn png_pack<W: Write>(file: &mut W, png_tag: &[u8; 4], data: &[u8]) {
-        file.write(&u32_to_u8_be(data.len() as u32)).unwrap();
-        file.write(png_tag).unwrap();
-        file.write(data).unwrap();
+pub fn write_u8<W: Write>(stream: &mut W, image: &[u8], w: u32, h: u32, ct: ColorType) {
+    fn write_chunk<W: Write>(stream: &mut W, png_tag: &[u8; 4], data: &[u8]) {
+        stream.write(&u32_to_u8_be(data.len() as u32)).unwrap();
+        stream.write(png_tag).unwrap();
+        stream.write(data).unwrap();
         {
             let mut crc = crc32::Crc32::new();
             crc.start();
             crc.update(png_tag);
             crc.update(data);
-            file.write(&u32_to_u8_be(crc.finalize())).unwrap();
+            stream.write(&u32_to_u8_be(crc.finalize())).unwrap();
         }
     }
 
-    file.write(b"\x89PNG\r\n\x1a\n").unwrap();
+    stream.write(b"\x89PNG\r\n\x1a\n").unwrap();
     {
         let wb = u32_to_u8_be(w);
         let hb = u32_to_u8_be(h);
@@ -187,7 +171,7 @@ pub fn write_rgba_from_u8<W: Write>(file: &mut W, image: &[u8], w: u32, h: u32, 
             ct as u8, // color type
             0, 0, 0,
         ];
-        png_pack(file, b"IHDR", &data);
+        write_chunk(stream, b"IHDR", &data);
     }
 
     {
@@ -207,8 +191,8 @@ pub fn write_rgba_from_u8<W: Write>(file: &mut W, image: &[u8], w: u32, h: u32, 
             span += row_bytes;
         }
 
-        png_pack(file, b"IDAT", &zlib_compress(&raw_data));
+        write_chunk(stream, b"IDAT", &deflate::compress_to_vec_zlib(&raw_data, 6));
     }
 
-    png_pack(file, b"IEND", &[]);
+    write_chunk(stream, b"IEND", &[]);
 }
