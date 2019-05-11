@@ -1,3 +1,5 @@
+use super::Image;
+use resource::Identifiable;
 use base::math::int2;
 
 pub struct TypedImage<T> {
@@ -29,5 +31,19 @@ where
     pub fn set(&mut self, x: i32, y: i32, v: T) {
         let i = y * self.dimensions.v[0] + x;
         self.data[i as usize] = v;
+    }
+}
+
+impl<T> Image for TypedImage<T> {
+    type Typed = TypedImage<T>;
+    
+    fn typed(&self) -> &TypedImage<T> {
+        &self
+    }
+}
+
+impl<T> Identifiable for TypedImage<T> {
+    fn name() -> &'static str {
+        "Image"
     }
 }
