@@ -3,17 +3,19 @@ extern crate core;
 
 mod options;
 
-use std::env;
-
 use base::chrono;
+use base::math::int2;
 use base::thread;
+use core::image;
 use core::rendering::driver;
+use core::resource::TypedCache;
+use core::scene::material::Material;
+use core::scene::material::Provider as MaterialProvider;
 use core::scene::{self, Scene};
 use core::take;
 use options::Options;
+use std::env;
 use std::time::Instant;
-
-use base::math::int2;
 
 fn main() {
     let total_start = Instant::now();
@@ -68,6 +70,14 @@ fn main() {
         println!("Loading take \"{}\": {}", options.take, err.message());
         std::process::exit(1);
     }
+
+    let imagely = image::Float4::new(int2::new(16, 16));
+
+    scene_loader.resource_manager().stuff(&imagely);
+
+    let material_provider = Box::new(MaterialProvider {});
+    let mut material_cache = TypedCache::<Material>::new(material_provider);
+    material_cache.load("stuff.material");
 
     let mut take = take.unwrap();
 

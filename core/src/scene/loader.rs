@@ -15,7 +15,7 @@ pub struct Loader {
     sphere: shape::Sphere,
 }
 
-impl Loader {
+impl<'a> Loader {
     pub fn new() -> Loader {
         Loader {
             resource_manager: resource::Manager::new(),
@@ -28,10 +28,10 @@ impl Loader {
         &mut self.resource_manager
     }
 
-    pub fn load<'a, 'b>(
-        &'a mut self,
+    pub fn load<'b, 'c>(
+        &'b mut self,
         filename: &str,
-        scene: &'b mut Scene<'a>,
+        scene: &'c mut Scene<'b>,
     ) -> Result<(), Error> {
         let stream = self.resource_manager.file_system().read_stream(filename)?;
 
@@ -52,7 +52,7 @@ impl Loader {
         Ok(())
     }
 
-    fn load_entities<'a, 'b>(&'a self, entities_value: &Value, scene: &'b mut Scene<'a>) {
+    fn load_entities<'b, 'c>(&'b self, entities_value: &Value, scene: &'c mut Scene<'b>) {
         if !entities_value.is_array() {
             return;
         }
@@ -100,11 +100,11 @@ impl Loader {
         }
     }
 
-    fn load_prop<'a, 'b>(
-        &'a self,
+    fn load_prop<'b, 'c>(
+        &'b self,
         prop_value: &Map<String, Value>,
-        scene: &'b mut Scene<'a>,
-    ) -> Option<&'b mut Prop> {
+        scene: &'c mut Scene<'b>,
+    ) -> Option<&'c mut Prop> {
         let mut shape = None;
 
         for (name, value) in prop_value.iter() {

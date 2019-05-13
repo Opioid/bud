@@ -1,3 +1,3 @@
 pub trait Identifiable {
-    fn name() -> &'static str;
+    fn identifier() -> &'static str;
 }

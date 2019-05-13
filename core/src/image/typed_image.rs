@@ -1,6 +1,6 @@
 use super::Image;
-use resource::Identifiable;
 use base::math::int2;
+use resource::Identifiable;
 
 pub struct TypedImage<T> {
     pub dimensions: int2,
@@ -36,14 +36,14 @@ where
 
 impl<T> Image for TypedImage<T> {
     type Typed = TypedImage<T>;
-    
+
     fn typed(&self) -> &TypedImage<T> {
         &self
     }
 }
 
 impl<T> Identifiable for TypedImage<T> {
-    fn name() -> &'static str {
+    fn identifier() -> &'static str {
         "Image"
     }
 }
