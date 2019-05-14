@@ -44,7 +44,7 @@ fn main() {
     let mut scene_loader = scene::Loader::new();
 
     {
-        let file_system = scene_loader.resource_manager().file_system();
+        let mut file_system = scene_loader.resource_manager().file_system();
 
         if options.mounts.is_empty() {
             file_system.push_mount("../data/");
@@ -75,11 +75,18 @@ fn main() {
 
     scene_loader.resource_manager().stuff(&imagely);
 
-    let material_provider = Box::new(MaterialProvider {});
-    let mut material_cache = Box::new(TypedCache::<Material>::new(material_provider));
-    material_cache.load("stuff.material");
+    //   let material_provider = Box::new(MaterialProvider {});
+    //   let mut material_cache = Box::new(TypedCache::<Material>::new(material_provider));
 
-//    scene_loader.resource_manager().register(material_cache);
+    // if let Err(err) = material_cache.load("stuff.material", scene_loader.resource_manager()) {
+    //     println!("{}", err.message());
+    // }
+
+    //    scene_loader.resource_manager().register(material_cache);
+
+    if let Err(err) = scene_loader.resource_manager().load_material("stuff.material") {
+        println!("{}", err.message());
+    }
 
     let mut take = take.unwrap();
 

@@ -14,7 +14,7 @@ impl<'a> Scene<'a> {
     }
 
     pub fn create_prop(&mut self, shape: &'a dyn Shape) -> &mut Prop<'a> {
-        let mut prop = Box::new(Prop::new(shape));
+        let prop = Box::new(Prop::new(shape));
 
         if shape.is_finite() {
             self.finite_props.push(prop);

@@ -333,10 +333,7 @@ struct GaussianParameters {
 }
 
 fn read_gaussian_parameters(value: &Value) -> GaussianParameters {
-    let mut radius = 1.0;
-    let mut alpha = 1.8;
-
-    let mut p = GaussianParameters { radius, alpha };
+    let mut p = GaussianParameters { radius: 1.0, alpha: 1.8 };
 
     let value = match value {
         Value::Object(value) => value,

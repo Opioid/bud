@@ -1,17 +1,14 @@
 use super::Material;
-use resource::{self, Identifiable};
+use error::Error;
+use resource::{self, Identifiable, Manager};
 use std::rc::Rc;
 
 pub struct Provider {}
 
-struct Matte {}
-
-impl Material for Matte {}
-
-
 impl resource::Provider<dyn Material> for Provider {
-    fn load(&self, name: &str) -> Rc<dyn Material> {
-        println!("We load materials");
-        Rc::new(Matte {})
+    fn load(&self, filename: &str, manager: &Manager) -> Result<Rc<dyn Material>, Error> {
+        let stream = manager.file_system().read_stream(filename)?;
+
+        Err(Error::new("No material implemented yet"))
     }
 }

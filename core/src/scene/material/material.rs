@@ -1,3 +1,5 @@
+use base::math::float3;
+use rendering::Worker;
 use resource::Identifiable;
 
 pub struct MaterialBase {
@@ -5,7 +7,5 @@ pub struct MaterialBase {
 }
 
 pub trait Material {
-    fn stuff(&self) -> u32 {
-        4
-    }
+    fn evaluate_radiance(&self, wi: float3, worker: &Worker) -> float3;
 }

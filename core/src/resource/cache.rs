@@ -1,4 +1,5 @@
-use resource;
+use error::Error;
+use resource::{self, Manager};
 use std::collections::HashMap;
 use std::rc::Rc;
 
@@ -14,8 +15,20 @@ impl<T: ?Sized> TypedCache<T> {
         TypedCache { provider, resources: HashMap::new() }
     }
 
-    pub fn load(&mut self, name: &str) -> Rc<T> {
-        self.resources.entry(name.to_string()).or_insert(self.provider.load(name)).clone()
+    pub fn load(&mut self, filename: &str, manager: &Manager) -> Result<Rc<T>, Error> {
+        //   self.resources.entry(name.to_string()).or_insert(self.provider.load(name)).clone()
+        if let Some(r) = self.resources.get(filename) {
+            return Ok(r.clone());
+        }
+
+        let r = self.provider.load(filename, manager);
+
+        if let Ok(r) = r {
+            self.resources.insert(filename.to_string(), r.clone());
+            return Ok(r);
+        }
+
+        r
     }
 }
 
