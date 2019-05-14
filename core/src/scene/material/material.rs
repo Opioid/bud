@@ -1,3 +1,5 @@
+use resource::Identifiable;
+
 pub struct MaterialBase {
     pub stuff: u32,
 }

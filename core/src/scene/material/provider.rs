@@ -1,5 +1,5 @@
 use super::Material;
-use resource;
+use resource::{self, Identifiable};
 use std::rc::Rc;
 
 pub struct Provider {}
@@ -7,6 +7,7 @@ pub struct Provider {}
 struct Matte {}
 
 impl Material for Matte {}
+
 
 impl resource::Provider<dyn Material> for Provider {
     fn load(&self, name: &str) -> Rc<dyn Material> {

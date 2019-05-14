@@ -8,7 +8,7 @@ use base::math::int2;
 use base::thread;
 use core::image;
 use core::rendering::driver;
-use core::resource::TypedCache;
+use core::resource::{Cache, TypedCache};
 use core::scene::material::Material;
 use core::scene::material::Provider as MaterialProvider;
 use core::scene::{self, Scene};
@@ -76,8 +76,10 @@ fn main() {
     scene_loader.resource_manager().stuff(&imagely);
 
     let material_provider = Box::new(MaterialProvider {});
-    let mut material_cache = TypedCache::<Material>::new(material_provider);
+    let mut material_cache = Box::new(TypedCache::<Material>::new(material_provider));
     material_cache.load("stuff.material");
+
+//    scene_loader.resource_manager().register(material_cache);
 
     let mut take = take.unwrap();
 

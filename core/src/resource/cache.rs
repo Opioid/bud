@@ -18,3 +18,5 @@ impl<T: ?Sized> TypedCache<T> {
         self.resources.entry(name.to_string()).or_insert(self.provider.load(name)).clone()
     }
 }
+
+impl<T: ?Sized> Cache for TypedCache<T> {}
