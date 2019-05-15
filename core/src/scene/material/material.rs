@@ -7,5 +7,7 @@ pub struct MaterialBase {
 }
 
 pub trait Material {
-    fn evaluate_radiance(&self, wi: float3, worker: &Worker) -> float3;
+    fn evaluate_radiance(&self, wi: float3, worker: &Worker) -> float3 {
+        float3::identity()
+    }
 }

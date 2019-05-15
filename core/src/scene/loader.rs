@@ -3,10 +3,12 @@ use base::math::Transformation;
 use error::Error;
 use json;
 use resource;
+use scene::material::Material;
 use scene::prop::Prop;
 use scene::shape::{self, Shape};
 use scene::Scene;
 use serde_json::{Map, Value};
+use std::rc::Rc;
 
 pub struct Loader {
     resource_manager: resource::Manager,
@@ -53,11 +55,12 @@ impl<'a> Loader {
     }
 
     fn load_entities<'b, 'c>(&'b self, entities_value: &Value, scene: &'c mut Scene<'b>) {
-        if !entities_value.is_array() {
-            return;
-        }
+        let entities_value = match entities_value {
+            Value::Array(entities_value) => entities_value,
+            _ => return,
+        };
 
-        for e in entities_value.as_array().unwrap().iter() {
+        for e in entities_value.iter() {
             let e = match e {
                 Value::Object(e) => e,
                 _ => continue,
@@ -73,6 +76,11 @@ impl<'a> Loader {
             let mut entity = None;
 
             match type_name.as_ref() {
+                "Light" => {
+                    if let Some(prop) = self.load_prop(e, scene) {
+                        entity = Some(&mut prop.entity)
+                    }
+                }
                 "Prop" => {
                     if let Some(prop) = self.load_prop(e, scene) {
                         entity = Some(&mut prop.entity)
@@ -107,9 +115,12 @@ impl<'a> Loader {
     ) -> Option<&'c mut Prop> {
         let mut shape = None;
 
+        let mut materials_value = None;
+
         for (name, value) in prop_value.iter() {
             match name.as_ref() {
                 "shape" => shape = self.load_shape(value),
+                "materials" => materials_value = Some(value),
                 _ => continue,
             }
         }
@@ -118,7 +129,13 @@ impl<'a> Loader {
             return None;
         }
 
-        Some(scene.create_prop(shape.unwrap()))
+        let mut materials = Vec::with_capacity(1);
+
+        if let Some(materials_value) = materials_value {
+            self.load_materials(materials_value, &mut materials);
+        }
+
+        Some(scene.create_prop(shape.unwrap(), materials))
     }
 
     fn load_shape(&self, shape_value: &Value) -> Option<&dyn Shape> {
@@ -136,5 +153,26 @@ impl<'a> Loader {
         }
 
         None
+    }
+
+    fn load_materials(&self, materials_value: &Value, materials: &mut Vec<Rc<dyn Material>>) {
+        let materials_value = match materials_value {
+            Value::Array(materials_value) => materials_value,
+            _ => return,
+        };
+
+        for m in materials_value.iter() {
+            let name = m.as_str().unwrap();
+            match self.resource_manager.load_material(name) {
+                Ok(material) => materials.push(material),
+                Err(error) => {
+                    println!("Using fallback for material \"{}\": {}", name, error.message())
+                }
+            }
+
+            if materials.len() == materials.capacity() {
+                return;
+            }
+        }
     }
 }

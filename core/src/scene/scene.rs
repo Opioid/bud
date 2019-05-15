@@ -2,6 +2,7 @@ use super::material::Material;
 use super::prop::{Intersection, Prop};
 use super::shape::Shape;
 use super::Ray;
+use std::rc::Rc;
 
 pub struct Scene<'a> {
     finite_props: Vec<Box<Prop<'a>>>,
@@ -13,8 +14,12 @@ impl<'a> Scene<'a> {
         Scene { finite_props: Vec::new(), infinite_props: Vec::new() }
     }
 
-    pub fn create_prop(&mut self, shape: &'a dyn Shape) -> &mut Prop<'a> {
-        let prop = Box::new(Prop::new(shape));
+    pub fn create_prop(
+        &mut self,
+        shape: &'a dyn Shape,
+        materials: Vec<Rc<dyn Material>>,
+    ) -> &mut Prop<'a> {
+        let prop = Box::new(Prop::new(shape, materials));
 
         if shape.is_finite() {
             self.finite_props.push(prop);
