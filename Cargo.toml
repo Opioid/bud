@@ -3,6 +3,7 @@ members = [
     "base",
     "core",
     "cli",
+    "di",
 ]
 
 [profile.release]

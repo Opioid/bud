@@ -1,0 +1,11 @@
+[package]
+name = "di"
+version = "0.0.0"
+authors = ["Benjamin Savs"]
+
+[[bin]]
+name = "di"
+
+[dependencies]
+base = { path = "../base" }
+core = { path = "../core" }
