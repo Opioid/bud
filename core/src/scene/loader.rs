@@ -38,11 +38,10 @@ impl<'a> Loader {
         let stream = self.resource_manager.file_system().read_stream(filename)?;
 
         let root: Value = serde_json::from_reader(stream)?;
-        if !root.is_object() {
-            return Err(Error::new("No suitable root object."));
-        }
-
-        let root = root.as_object().unwrap();
+        let root = match root {
+            Value::Object(root) => root,
+            _ => return Err(Error::new("No suitable root object.")),
+        };
 
         for (name, value) in root.iter() {
             match name.as_ref() {
